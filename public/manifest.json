@@ -12,8 +12,8 @@
   },
   "description": "Quickly Make video notes and convert into pdf",
   "icons": {
-    "16": "logo192.png",
-    "48": "logo192.png"
+    "16": "projectLogo.png",
+    "48": "projectLogo.png"
   },
   "action": {
     "default_title": "FrameTagger",

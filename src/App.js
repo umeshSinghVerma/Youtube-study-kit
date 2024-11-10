@@ -109,67 +109,67 @@ function CompleteListDocument({ completeData }) {
   const userData = completeData.userData;
   const playlistVideos = completeData.PlaylistVideos;
   const availableVideos = playlistVideos.filter((video) => userData.hasOwnProperty(video))
-  if(availableVideos){
-  return (
-    <Document>
-      {availableVideos.map((videoId) => {
-        const title = userData[videoId].heading;
-        const ImagesData = userData[videoId].data;
-        return (
-          <Page size="LEGAL" style={styles.body}>
-            <View>
-              <Text style={styles.title}>{title}</Text>
-              {
-                ImagesData.map((image) => {
-                  return (
-                    <>
-                      <Link target="_blank" href={image.ytLink}>
-                        <Image src={image.imgUrl} style={styles.image} />
-                      </Link>
-                      <Text style={styles.text}>{image.imgText}</Text>
-                    </>
-                  )
-                })
-              }
-            </View>
-            <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-              `${pageNumber} / ${totalPages}`
-            )} fixed />
-            <View style={styles.branding} fixed>
-              <Image
-                style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
-                src="/logo192.png"
-              />
-              <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
-            </View>
-          </Page>
-        )
-      })}
-    </Document>)
-  }else{
+  if (availableVideos) {
+    return (
+      <Document>
+        {availableVideos.map((videoId) => {
+          const title = userData[videoId].heading;
+          const ImagesData = userData[videoId].data;
+          return (
+            <Page size="LEGAL" style={styles.body}>
+              <View>
+                <Text style={styles.title}>{title}</Text>
+                {
+                  ImagesData.map((image) => {
+                    return (
+                      <>
+                        <Link target="_blank" href={image.ytLink}>
+                          <Image src={image.imgUrl} style={styles.image} />
+                        </Link>
+                        <Text style={styles.text}>{image.imgText}</Text>
+                      </>
+                    )
+                  })
+                }
+              </View>
+              <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+                `${pageNumber} / ${totalPages}`
+              )} fixed />
+              <View style={styles.branding} fixed>
+                <Image
+                  style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
+                  src="/logo192.png"
+                />
+                <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
+              </View>
+            </Page>
+          )
+        })}
+      </Document>)
+  } else {
     return null;
   }
 }
 const Header = ({ activeTab, setActiveTab, videoData, isList }) => {
-    const title = videoData?.heading||"FrameTagger";
-    return (
-      <div className='bg-[#323639] flex items-center justify-between'>
-        <div className='flex  items-center'>
-          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isList={isList} />
-          <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[280px]'>{title}</p>
-        </div>
-
-        <div>
-          {videoData && <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
-            {({ loading }) => (!loading &&
-              <button className='h-[32px] w-[32px] mr-2  rounded-full hover:bg-[#ffffff16] flex items-center justify-center'>
-                <img src="/download.svg" alt="download" title='download' />
-              </button>)
-            }
-          </PDFDownloadLink>}
-        </div>
+  const title = videoData?.heading || "FrameTagger";
+  return (
+    <div className='bg-[#323639] flex items-center justify-between'>
+      <div className='flex  items-center'>
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isList={isList} />
+        <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[280px]'>{title}</p>
       </div>
-    )
+
+      <div>
+        {videoData && <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
+          {({ loading }) => (!loading &&
+            <button className='h-[32px] w-[32px] mr-2  rounded-full hover:bg-[#ffffff16] flex items-center justify-center'>
+              <img src="/download.svg" alt="download" title='download' />
+            </button>)
+          }
+        </PDFDownloadLink>}
+      </div>
+    </div>
+  )
 }
 const CompleteListHeader = ({ activeTab, setActiveTab, completeData }) => {
   const PlayListTitle = completeData.PlayListTitle;
@@ -183,7 +183,7 @@ const CompleteListHeader = ({ activeTab, setActiveTab, completeData }) => {
         <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[280px]'>{PlayListTitle}</p>
       </div>
       <div>
-        {availableVideos.length>0 && <PDFDownloadLink document={<CompleteListDocument completeData={completeData} />} fileName={`${PlayListTitle}.pdf`}>
+        {availableVideos.length > 0 && <PDFDownloadLink document={<CompleteListDocument completeData={completeData} />} fileName={`${PlayListTitle}.pdf`}>
           {({ loading }) => (!loading &&
             <button className='h-[32px] w-[32px] mr-2  rounded-full hover:bg-[#ffffff16] flex items-center justify-center'>
               <img src="/download.svg" alt="download" title='download' />
@@ -225,62 +225,66 @@ function App() {
     getVideoData();
   }, [])
   async function getVideoData() {
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      if (notYoutube) {
-        setNotYoutube(false);
-      }
-      const pageUrl = tabs[0].url;
-      if (pageUrl.includes("youtube.com/watch")) {
-        const queryParameters = pageUrl.split("?")[1];
-        const urlParameters = new URLSearchParams(queryParameters);
-        const videoId = urlParameters.get("v");
-        const ListId = urlParameters.get('list');
-        await chrome.storage.local.get("userData").then(async (result) => {
-          console.log("this is the userData", result.userData);
-          if (result.userData && videoId) {
-            const userData = result.userData;
-            if (ListId) {
-              const data = await fetchVideosList(ListId);
-              if (data) {
+    try {
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        if (notYoutube) {
+          setNotYoutube(false);
+        }
+        const pageUrl = tabs[0].url;
+        if (pageUrl.includes("youtube.com/watch")) {
+          const queryParameters = pageUrl.split("?")[1];
+          const urlParameters = new URLSearchParams(queryParameters);
+          const videoId = urlParameters.get("v");
+          const ListId = urlParameters.get('list');
+          await chrome.storage.local.get("userData").then(async (result) => {
+            console.log("this is the userData", result.userData);
+            if (result.userData && videoId) {
+              const userData = result.userData;
+              if (ListId) {
+                const data = await fetchVideosList(ListId);
+                if (data) {
+                  setCompleteData({
+                    list: ListId,
+                    currentVideo: videoId,
+                    userData: userData,
+                    PlaylistVideos: data.videoIds,
+                    PlayListTitle: data.playlistTitle
+                  })
+                }
+              }
+              else {
                 setCompleteData({
-                  list: ListId,
+                  list: null,
                   currentVideo: videoId,
                   userData: userData,
-                  PlaylistVideos: data.videoIds,
-                  PlayListTitle: data.playlistTitle
+                  PlaylistVideos: [],
+                  PlayListTitle: ""
                 })
               }
             }
-            else {
-              setCompleteData({
-                list: null,
-                currentVideo: videoId,
-                userData: userData,
-                PlaylistVideos: [],
-                PlayListTitle: ""
-              })
-            }
-          }
-        });
-      } else {
-        setActiveTab('Not Youtube')
-      }
-    });
+          });
+        } else {
+          setActiveTab('Not Youtube')
+        }
+      });
+    } catch (error) {
+      console.log("Outsides the extension context");
+    }
   }
 
 
   switch (activeTab) {
     case 'pdf':
-        return (
-          <div className='flex flex-col w-full bg-[#525659] h-screen'>
-            <div className='sticky top-0'>
-              <Header activeTab={activeTab} setActiveTab={setActiveTab} isList={completeData.list} videoData={completeData.userData[completeData.currentVideo]} />
-            </div>
-            {completeData.userData[completeData.currentVideo] && <PDFViewer showToolbar={false} height={"100%"} width={"100%"}>
-              <MYDocument videoData={completeData.userData[completeData.currentVideo]} />
-            </PDFViewer>}
+      return (
+        <div className='flex flex-col w-full bg-[#525659] h-screen'>
+          <div className='sticky top-0'>
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} isList={completeData.list} videoData={completeData.userData[completeData.currentVideo]} />
           </div>
-        )
+          {completeData.userData[completeData.currentVideo] && <PDFViewer showToolbar={false} height={"100%"} width={"100%"}>
+            <MYDocument videoData={completeData.userData[completeData.currentVideo]} />
+          </PDFViewer>}
+        </div>
+      )
 
     case "list":
       return (
@@ -288,9 +292,9 @@ function App() {
           <div className='sticky top-0'>
             <CompleteListHeader activeTab={activeTab} setActiveTab={setActiveTab} completeData={completeData} />
           </div>
-            <PDFViewer showToolbar={false} height={"100%"} width={"100%"}>
-              <CompleteListDocument completeData={completeData} />
-            </PDFViewer>
+          <PDFViewer showToolbar={false} height={"100%"} width={"100%"}>
+            <CompleteListDocument completeData={completeData} />
+          </PDFViewer>
         </div>
       )
 
