@@ -2,19 +2,20 @@ import React from 'react'
 import ChatScreen from './ChatScreen'
 import { SearchProvider } from '../context/SearchContext'
 import Header from './Header'
+import NotesIntract from './NotesIntract'
 
 export default function Intract() {
     return (
         <SearchProvider>
-            <div className='flex-col h-screen w-screen overflow-hidden bg-[#0f0f0f]'>
+            <div className='bg-[#0f0f0f] h-screen w-screen flex flex-col'>
                 <div className='h-[60px]'>
-                    <Header/>
+                    <Header />
                 </div>
-                <div className='flex flex-grow h-full'>
-                    <div className='w-[60%] bg-yellow-50 overflow-y-auto'>
-                        pdf Intraction
+                <div className='flex flex-grow'>
+                    <div className='w-[60%] overflow-y-auto '>
+                        <NotesIntract/>
                     </div>
-                    <div className='w-[40%] bg-red-50'>
+                    <div className='w-[40%] bg-[#0f0f0f]'>
                         <ChatScreen />
                     </div>
                 </div>
