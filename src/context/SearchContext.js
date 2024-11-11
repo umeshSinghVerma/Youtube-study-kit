@@ -1,12 +1,38 @@
-import React, { createContext, useState } from 'react';
-import UserData from '../../src/data.json';
+/* global chrome */
+
+import React, { createContext, useEffect, useState } from 'react';
 
 export const SearchContext = createContext();
+
+async function getVideoData(setUserData, setLoading,setCurrentsearch) {
+    try {
+        setLoading(true);
+        await chrome.storage.local.get("userData").then(async (result) => {
+            if (result.userData) {
+                const userData = result.userData || {} ;
+                setUserData(userData);
+                setCurrentsearch(Object.keys(userData)[0]);
+            }
+        });
+    } catch (error) {
+        console.log(error)
+    } finally {
+        setLoading(false);
+    }
+}
+
+
 
 export const SearchProvider = ({ children }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [currentSearch, setCurrentsearch] = useState([]);
+    const [currentSearch, setCurrentsearch] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [UserData, setUserData] = useState({});
+
+    useEffect(() => {
+        getVideoData(setUserData, setLoading,setCurrentsearch);
+    }, [])
 
     const videoMapById = {};
     const videoMapByTitle = {};
@@ -22,7 +48,7 @@ export const SearchProvider = ({ children }) => {
         setSearchResults(results);
     };
 
-    const updateCurrentSearch=(videoid)=>{
+    const updateCurrentSearch = (videoid) => {
         setCurrentsearch(videoid);
     }
 
@@ -48,7 +74,7 @@ export const SearchProvider = ({ children }) => {
     };
 
     return (
-        <SearchContext.Provider value={{ searchTerm, searchResults, updateSearch, updateCurrentSearch, currentSearch }}>
+        <SearchContext.Provider value={{ searchTerm, searchResults, updateSearch, updateCurrentSearch, currentSearch, UserData, loading }}>
             {children}
         </SearchContext.Provider>
     );

@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import UserData from '.././data.json';
 import { CircleArrowRight, ImagePlus, ImagePlusIcon, Link, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -16,23 +15,10 @@ import { SearchContext } from '../context/SearchContext';
 import NoSearchComponent from './NoSearchComponent';
 
 export default function NotesIntract() {
-  const { currentSearch } = useContext(SearchContext);
-  let firstVideoData = null;
-  let firstSnapshotInfo = null;
-  let firstEditedText = "";
-
-  if (Object.keys(UserData).length > 0) {
-    firstVideoData = UserData[Object.keys(UserData)[0]];
-    if (firstVideoData.data.length > 0) {
-      firstSnapshotInfo = { id: 0, text: firstVideoData.data[0].imgText };
-      firstEditedText = firstVideoData.data[0].imgText;
-    } else {
-      firstSnapshotInfo = { id: -1, text: '' };
-    }
-  }
-  const [videoData, setVideoData] = useState(firstVideoData);
-  const [snapShotInfo, setSnapShotInfo] = useState(firstSnapshotInfo);
-  const [editedText, setEditedText] = useState(firstEditedText);
+  const { currentSearch, UserData, loading } = useContext(SearchContext);
+  const [videoData, setVideoData] = useState(null);
+  const [snapShotInfo, setSnapShotInfo] = useState(null);
+  const [editedText, setEditedText] = useState(null);
 
 
   useEffect(() => {
@@ -46,9 +32,7 @@ export default function NotesIntract() {
         setEditedText("");
       }
     } else {
-      if (currentSearch != "") {
-        setVideoData(null);
-      }
+      setVideoData(null);
     }
   }, [currentSearch])
 
@@ -57,7 +41,7 @@ export default function NotesIntract() {
   }, [snapShotInfo])
 
 
-  if (videoData == null) {
+  if (loading || videoData == null) {
     return (
       <div className='flex flex-col text-white items-center h-full pt-20 gap-3'>
         <NoSearchComponent />
