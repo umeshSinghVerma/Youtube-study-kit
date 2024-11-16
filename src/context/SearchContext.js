@@ -1,17 +1,23 @@
 /* global chrome */
 
 import React, { createContext, useEffect, useState } from 'react';
+import { getSubTitles } from '../lib/getSubtitles';
+import { useSearchParams } from 'react-router-dom';
 
 export const SearchContext = createContext();
 
-async function getVideoData(setUserData, setLoading,setCurrentsearch) {
+async function getVideoData(setUserData, setLoading, setCurrentsearch, passedVideoId) {
     try {
         setLoading(true);
         await chrome.storage.local.get("userData").then(async (result) => {
             if (result.userData) {
-                const userData = result.userData || {} ;
+                const userData = result.userData || {};
                 setUserData(userData);
-                setCurrentsearch(Object.keys(userData)[0]);
+                if (Object.keys(userData).length > 0) {
+                    setCurrentsearch(passedVideoId || Object.keys(userData)[0]);
+                } else {
+                    setCurrentsearch(null);
+                }
             }
         });
     } catch (error) {
@@ -23,15 +29,18 @@ async function getVideoData(setUserData, setLoading,setCurrentsearch) {
 
 
 
+
 export const SearchProvider = ({ children }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [currentSearch, setCurrentsearch] = useState("");
+    const [currentSearch, setCurrentsearch] = useState(null);
     const [loading, setLoading] = useState(false);
     const [UserData, setUserData] = useState({});
-
+    let [searchParams, setSearchParams] = useSearchParams();
+    console.log("searchParams ",searchParams.get("videoId"));
     useEffect(() => {
-        getVideoData(setUserData, setLoading,setCurrentsearch);
+        const passedVideoId = searchParams.get("videoId");
+        getVideoData(setUserData, setLoading, setCurrentsearch, passedVideoId);
     }, [])
 
     const videoMapById = {};
@@ -73,8 +82,18 @@ export const SearchProvider = ({ children }) => {
         return uniqueResults;
     };
 
+
+
     return (
-        <SearchContext.Provider value={{ searchTerm, searchResults, updateSearch, updateCurrentSearch, currentSearch, UserData, loading }}>
+        <SearchContext.Provider value={{
+            searchTerm,
+            searchResults,
+            updateSearch,
+            updateCurrentSearch,
+            currentSearch,
+            UserData,
+            loading
+        }}>
             {children}
         </SearchContext.Provider>
     );

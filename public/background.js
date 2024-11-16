@@ -3,4 +3,13 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.tabs.create({ url: guideURL });
 });
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "create_tab") {
+      const guideURL = chrome.runtime.getURL(message.url);
+      chrome.tabs.create({ url: guideURL });
+      sendResponse({ success: true });
+    }
+  });
+  
+
 chrome.runtime.setUninstallURL('https://frametagger.com');

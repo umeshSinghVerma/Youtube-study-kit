@@ -1,12 +1,12 @@
 /* global chrome */
-import logo from './logo.svg';
 import './App.css';
 import { Page, Text, View, Document, StyleSheet, Image, Link, PDFViewer, Font, Line, PDFDownloadLink, } from '@react-pdf/renderer';
 import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import Oswald from './fonts/Oswald.ttf'
-import axios from 'axios';
+import { Expand } from 'lucide-react';
 import StartingScreen from './StartingScreen';
+import { getPlaylistVideoList } from './lib/getPlaylistVideoList';
 
 Font.register({
   family: 'Oswald',
@@ -94,7 +94,7 @@ function MYDocument({ videoData }) {
           <View style={styles.branding} fixed>
             <Image
               style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
-              src="/logo192.png"
+              src="/projectLogo.png"
             />
             <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
           </View>
@@ -138,7 +138,7 @@ function CompleteListDocument({ completeData }) {
               <View style={styles.branding} fixed>
                 <Image
                   style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
-                  src="/logo192.png"
+                  src="/projectLogo.png"
                 />
                 <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
               </View>
@@ -150,24 +150,33 @@ function CompleteListDocument({ completeData }) {
     return null;
   }
 }
-const Header = ({ activeTab, setActiveTab, videoData, isList }) => {
+const Header = ({ activeTab, setActiveTab, videoId, videoData, isList }) => {
+  console.log("this is videoId",videoId);
   const title = videoData?.heading || "FrameTagger";
   return (
     <div className='bg-[#323639] flex items-center justify-between'>
       <div className='flex  items-center'>
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isList={isList} />
-        <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[280px]'>{title}</p>
+        <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[200px]'>{title}</p>
       </div>
 
-      <div>
-        {videoData && <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
+      {videoData && videoId && <div className='flex gap-2 mx-2 mb-[-2px]'>
+        <button
+          onClick={() => {
+            chrome.runtime.sendMessage({ action: "create_tab", url: `index.html#/intract?videoId=${videoId}` });
+          }}
+          className="text-white h-[32px] w-[32px] mb-[3px]  rounded-full hover:bg-[#ffffff16] flex items-center justify-center"
+        >
+          <Expand height={16} width={16} />
+        </button>
+        <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
           {({ loading }) => (!loading &&
             <button className='h-[32px] w-[32px] mr-2  rounded-full hover:bg-[#ffffff16] flex items-center justify-center'>
               <img src="/download.svg" alt="download" title='download' />
             </button>)
           }
-        </PDFDownloadLink>}
-      </div>
+        </PDFDownloadLink>
+      </div>}
     </div>
   )
 }
@@ -194,28 +203,28 @@ const CompleteListHeader = ({ activeTab, setActiveTab, completeData }) => {
     </div>
   )
 }
-const fetchVideosList = async (playlistId) => {
-  console.log('vidlist');
-  const API_KEY = 'AIzaSyCMm7TQGjXtXj7l-NVaB2Vf3HQLTLL0Z7s';
-  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`;
+// const fetchVideosList = async (playlistId) => {
+//   console.log('vidlist');
+//   const API_KEY = 'AIzaSyCMm7TQGjXtXj7l-NVaB2Vf3HQLTLL0Z7s';
+//   const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`;
 
-  try {
-    const response = await axios.get(url);
-    console.log("response", response);
-    const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId);
-    const playlistTitle = response.data.items[0].snippet.title;
-    return { videoIds, playlistTitle }
-  } catch (e) {
-    console.log("Error fetching videos ", e);
-    return null;
-  }
+//   try {
+//     const response = await axios.get(url);
+//     console.log("response", response);
+//     const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId);
+//     const playlistTitle = response.data.items[0].snippet.title;
+//     return { videoIds, playlistTitle }
+//   } catch (e) {
+//     console.log("Error fetching videos ", e);
+//     return null;
+//   }
 
-}
+// }
 function App() {
   const [activeTab, setActiveTab] = useState("pdf");
   const [completeData, setCompleteData] = useState({
     list: null,
-    videoId: null,
+    currentVideo: null,
     userData: {},
     PlaylistVideos: [],
     PlayListTitle: null
@@ -241,7 +250,7 @@ function App() {
             if (result.userData && videoId) {
               const userData = result.userData;
               if (ListId) {
-                const data = await fetchVideosList(ListId);
+                const data = await getPlaylistVideoList(ListId);
                 if (data) {
                   setCompleteData({
                     list: ListId,
@@ -275,10 +284,11 @@ function App() {
 
   switch (activeTab) {
     case 'pdf':
+      console.log("Video Id ",completeData.videoId)
       return (
         <div className='flex flex-col w-full bg-[#525659] h-screen'>
           <div className='sticky top-0'>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} isList={completeData.list} videoData={completeData.userData[completeData.currentVideo]} />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} videoId={completeData.currentVideo} isList={completeData.list} videoData={completeData.userData[completeData.currentVideo]} />
           </div>
           {completeData.userData[completeData.currentVideo] && <PDFViewer showToolbar={false} height={"100%"} width={"100%"}>
             <MYDocument videoData={completeData.userData[completeData.currentVideo]} />

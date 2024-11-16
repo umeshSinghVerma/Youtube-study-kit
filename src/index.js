@@ -9,20 +9,20 @@ import { SearchProvider } from './context/SearchContext';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SearchProvider>
-      <HashRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
+    <HashRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
+      <SearchProvider>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/guide" element={<div>Hi, I am on the guide page</div>} />
           <Route path="/intract" element={<Intract />} />
         </Routes>
-      </HashRouter>
-    </SearchProvider>
+      </SearchProvider>
+    </HashRouter>
   </React.StrictMode>
 );
 

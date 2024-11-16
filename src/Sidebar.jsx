@@ -29,7 +29,7 @@ const Sidebar = ({activeTab, setActiveTab, isList }) => {
           }`}
       >
         <a href='https://frametagger.com' className='flex items-center gap-2 border-b pb-2 border-[#80808056]'>
-          <img src="/logo192.png" alt="" width={40} />
+          <img src="/projectLogo.png" alt="" width={40} />
           <p style={{fontFamily:"Oswald"}} className='text-white text-xl'>FrameTagger</p>
         </a>
         <div className='text-white my-4 flex flex-col gap-y-4 font-semibold'>

@@ -1,3 +1,4 @@
+/* global chrome */
 import React, { useContext, useEffect, useState } from 'react';
 import { CircleArrowRight, ImagePlus, ImagePlusIcon, Link, Trash2 } from 'lucide-react';
 import {
@@ -12,49 +13,30 @@ import {
 } from "../components/ui/dialog"
 import { Button } from './ui/button';
 import { SearchContext } from '../context/SearchContext';
-import NoSearchComponent from './NoSearchComponent';
 
-export default function NotesIntract() {
-  const { currentSearch, UserData, loading } = useContext(SearchContext);
-  const [videoData, setVideoData] = useState(null);
-  const [snapShotInfo, setSnapShotInfo] = useState(null);
-  const [editedText, setEditedText] = useState(null);
-
+export default function NotesIntract({ currentSearch, UserData }) {
+  const { updateCurrentSearch } = useContext(SearchContext);
+  const videoData = UserData[currentSearch];
+  let initialSnapshotInfo = { id: -1, text: "" };
+  if (videoData.data.length > 0) {
+    initialSnapshotInfo = { id: 0, text: videoData.data[0].imgText };
+  }
+  const [snapShotInfo, setSnapShotInfo] = useState(initialSnapshotInfo);
+  const [editedText, setEditedText] = useState(initialSnapshotInfo.text);
 
   useEffect(() => {
-    if (UserData[currentSearch]) {
-      setVideoData(UserData[currentSearch]);
-      if (UserData[currentSearch].data.length > 0) {
-        setSnapShotInfo({ id: 0, text: videoData?.data[0]?.imgText || "" });
-        setEditedText(videoData?.data[0]?.imgText || "");
-      } else {
-        setSnapShotInfo({ id: -1, text: "" });
-        setEditedText("");
-      }
+    if (UserData[currentSearch].data.length > 0) {
+      setSnapShotInfo({ id: 0, text: UserData[currentSearch].data[0].imgText });
+      setEditedText(UserData[currentSearch].data[0].imgText);
     } else {
-      setVideoData(null);
+      setSnapShotInfo({ id: -1, text: "" });
+      setEditedText("");
     }
   }, [currentSearch])
 
   useEffect(() => {
     setEditedText(videoData?.data[snapShotInfo.id]?.imgText || "");
   }, [snapShotInfo])
-
-
-  if (loading || videoData == null) {
-    return (
-      <div className='flex flex-col text-white items-center h-full pt-20 gap-3'>
-        <NoSearchComponent />
-        <div className="flex flex-col items-center justify-center text-center space-y-2 p-4 bg-[#ffffff14] rounded-md shadow-md">
-          <p className="text-lg font-semibold text-gray-100">Try searching to get started</p>
-          <p className="text-sm text-gray-400">
-            It looks like the notes you're searching for haven't been taken yet. Kindly start by taking notes from the YouTube video.
-          </p>
-        </div>
-
-      </div>
-    )
-  }
 
   const handleSnapshotChange = (direction) => {
     setSnapShotInfo((prev) => {
@@ -70,32 +52,43 @@ export default function NotesIntract() {
 
   const handleUpdate = () => {
     videoData.data[snapShotInfo.id].imgText = editedText;
-    setSnapShotInfo((prev) => ({ ...prev, text: editedText }));
+    chrome.storage.local.set({ userData: UserData }).then(() => {
+      setSnapShotInfo((prev) => ({ ...prev, text: editedText }));
+    }).catch((e) => {
+      console.log("Description Text is not Updated", e)
+    })
   };
 
   const handleDelete = () => {
     UserData[currentSearch].data.splice(snapShotInfo.id, 1);
-    setSnapShotInfo((prev) => {
-      if (UserData[currentSearch].data.length == 0) {
-        return { id: -1, text: '' }
-      }
-      if (prev.id == 0 && UserData[currentSearch].data.length != 0) {
-        return { id: 0, text: videoData.data[0].imgText + "" };
-      }
-      return { id: prev.id - 1, text: videoData.data[prev.id - 1].imgText }
+    if (UserData[currentSearch].data.length == 0) {
+      delete UserData[currentSearch];
+      updateCurrentSearch(null);
+    }
+    chrome.storage.local.set({ userData: UserData }).then(() => {
+      setSnapShotInfo((prev) => {
+        if (UserData[currentSearch].data.length == 0) {
+          return { id: -1, text: '' }
+        }
+        if (prev.id == 0 && UserData[currentSearch].data.length != 0) {
+          return { id: 0, text: videoData.data[0].imgText + "" };
+        }
+        return { id: prev.id - 1, text: videoData.data[prev.id - 1].imgText }
+      })
+    }).catch((e) => {
+      console.log("Snapshot is not deleted", e)
     })
-
   }
 
 
 
-
+  console.log("snapshotInfo", snapShotInfo);
   return (
     <div className='text-white flex flex-col h-full mx-2'>
       {
         snapShotInfo.id != -1 ?
           (
-            <img src={videoData.data[snapShotInfo.id].imgUrl} alt={videoData.data[snapShotInfo.id].imgText} className='rounded-md' />
+            <img src={videoData?.data[snapShotInfo.id]?.imgUrl || ""} alt={videoData?.data[snapShotInfo.id]?.imgText || ""} className='rounded-md' />
           )
           :
           (
@@ -165,7 +158,7 @@ export default function NotesIntract() {
         <textarea
           type="text"
           placeholder='Description'
-          value={editedText}
+          value={editedText || ""}
           onChange={(e) => setEditedText(e.target.value)}
           className='w-full h-0 flex-grow bg-transparent outline-none p-2 resize-none'
         />

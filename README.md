@@ -37,7 +37,7 @@ The YouTube Study Helper Chrome Extension is designed to assist users in studyin
 ### 4\. PDF Generation
 
 - The extension uses `react-pdf` to dynamically generate a PDF document containing all snapshots in sequential order.
-- Each snapshot in the PDF includes: 
+- Each snapshot in the PDF includes:
   - **Image with Annotations**: The annotated snapshot (text or drawing-based).
   - **Timestamped Video Link**: A link that, when clicked, opens the YouTube video at the specific timestamp in the same browser tab.
   - **Text Annotations**: Any annotation text provided by the user, displayed below each image.
@@ -45,7 +45,7 @@ The YouTube Study Helper Chrome Extension is designed to assist users in studyin
 
 ### 5\. AI-Powered Summarization and Flashcards (Future Enhancements)
 
-- The extension is designed to support future integration with OpenAI’s API for enhanced study tools: 
+- The extension is designed to support future integration with OpenAI’s API for enhanced study tools:
   - **Subtitle Extraction**: Retrieves the full subtitle data with timestamps from YouTube videos.
   - **Summarization**: Generates a concise summary of the video, helping users quickly review the main points.
   - **Flashcard Generation**: Automatically creates flashcards with questions based on key concepts in the video, enabling active recall practice.
