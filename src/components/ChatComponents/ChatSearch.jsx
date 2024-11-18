@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Select,
     SelectContent,
@@ -9,18 +9,26 @@ import {
 import PaperclipIcon from '../PaperClipIcon';
 import ArrowUpIcon from '../ArrowUpIcon';
 import { getPromptResult } from '../../lib/getPromptResult';
+import { LanguageContext } from '../../context/LanguageContext';
 
 export default function ChatSearch({ setMessages, promptSession }) {
     const [aiModel, setAiModel] = useState('chrome-built-in');
     const [disabled, setDisabled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const { convertOutputText } = useContext(LanguageContext);
 
-    const handleStreamResponse = (newChunk) => {
-        setMessages((prevMessages) => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[updatedMessages.length - 1] = newChunk;
-            return updatedMessages;
-        });
+
+    const handleStreamResponse = async (newChunk) => {
+        try {
+            const outputText = await convertOutputText(newChunk);
+            setMessages((prevMessages) => {
+                const updatedMessages = [...prevMessages];
+                updatedMessages[updatedMessages.length - 1] = outputText;
+                return updatedMessages;
+            });
+        } catch (error) {
+            console.log(error, 'error in translating output message');
+        }
     };
 
     const handleSubmit = async () => {

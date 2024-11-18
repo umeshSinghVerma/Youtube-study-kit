@@ -1,6 +1,6 @@
 /* global chrome */
 import React, { useContext, useEffect, useState } from 'react';
-import { CircleArrowRight, ImagePlus, ImagePlusIcon, Link, Trash2 } from 'lucide-react';
+import { CircleArrowRight, ImagePlus, ImagePlusIcon, Link, NotebookPen, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -23,6 +23,8 @@ export default function NotesIntract({ currentSearch, UserData }) {
   }
   const [snapShotInfo, setSnapShotInfo] = useState(initialSnapshotInfo);
   const [editedText, setEditedText] = useState(initialSnapshotInfo.text);
+
+  const [notesMode, setNotesMode] = useState(true);
 
   useEffect(() => {
     if (UserData[currentSearch].data.length > 0) {
@@ -79,16 +81,19 @@ export default function NotesIntract({ currentSearch, UserData }) {
       console.log("Snapshot is not deleted", e)
     })
   }
-
-
-
-  console.log("snapshotInfo", snapShotInfo);
   return (
     <div className='text-white flex flex-col h-full mx-2'>
       {
         snapShotInfo.id != -1 ?
           (
-            <img src={videoData?.data[snapShotInfo.id]?.imgUrl || ""} alt={videoData?.data[snapShotInfo.id]?.imgText || ""} className='rounded-md' />
+            <div className='rounded-md'>
+              {
+                notesMode ?
+                  <img src={videoData?.data[snapShotInfo.id]?.imgUrl || ""} alt={videoData?.data[snapShotInfo.id]?.imgText || ""} />
+                  :
+                  <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${Math.floor(videoData.data[snapShotInfo.id]?.timestamp)}`}></iframe>
+              }
+            </div>
           )
           :
           (
@@ -111,10 +116,26 @@ export default function NotesIntract({ currentSearch, UserData }) {
             {videoData.heading}
           </p>
           {snapShotInfo.id >= 0 && <div className='flex gap-2'>
-            <div className='hover:bg-[#5a5a5a45] p-2 rounded-full cursor-pointer'>
-              <Link height={20} width={20} />
-            </div>
-            <div>
+            <button onClick={
+              () => {
+                setNotesMode((prev) => {
+                  // if (prev == true) {
+                  //   const interval = setInterval(() => {
+                  //     let captureButton = document.getElementById('Frametagger-capture');
+                  //     if (!captureButton) {
+                  //       addFunctionalities();
+                  //     } else {
+                  //       clearInterval(interval);
+                  //     }
+                  //   }, 1000)
+                  // }
+                  return !prev;
+                })
+              }
+            } className='hover:bg-[#5a5a5a45] p-2 rounded-full cursor-pointer'>
+              {notesMode ? <Link height={20} width={20} /> : <NotebookPen height={20} width={20} />}
+            </button>
+            <div className='flex'>
               <Dialog>
                 <DialogTrigger>
                   <div className='hover:bg-[#5a5a5a45] p-2 rounded-full cursor-pointer'>

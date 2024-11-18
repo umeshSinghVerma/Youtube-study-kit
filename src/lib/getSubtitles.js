@@ -1,5 +1,4 @@
 import { YoutubeTranscript } from 'youtube-transcript';
-
 export async function getSubTitles(videoId) {
     try {
         const transcript = await YoutubeTranscript.fetchTranscript(videoId);

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import HumanMessage from '../HumanMessage'
 import AiMessage from '../AiMessage'
 
