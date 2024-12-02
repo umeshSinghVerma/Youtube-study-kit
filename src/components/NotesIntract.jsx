@@ -15,7 +15,7 @@ import { Button } from './ui/button';
 import { SearchContext } from '../context/SearchContext';
 
 export default function NotesIntract({ currentSearch, UserData }) {
-  const { updateCurrentSearch } = useContext(SearchContext);
+  const { updateCurrentSearch, currentTimestamp, setCurrentTimestamp } = useContext(SearchContext);
   const videoData = UserData[currentSearch];
   let initialSnapshotInfo = { id: -1, text: "" };
   if (videoData.data.length > 0) {
@@ -25,6 +25,12 @@ export default function NotesIntract({ currentSearch, UserData }) {
   const [editedText, setEditedText] = useState(initialSnapshotInfo.text);
 
   const [notesMode, setNotesMode] = useState(true);
+
+  useEffect(() => {
+    if (currentTimestamp) {
+      setNotesMode(false);
+    }
+  }, [currentTimestamp])
 
   useEffect(() => {
     if (UserData[currentSearch].data.length > 0) {
@@ -46,6 +52,7 @@ export default function NotesIntract({ currentSearch, UserData }) {
       if (newId >= 0 && newId < videoData.data.length) {
         const newText = videoData.data[newId].imgText;
         setEditedText(newText);
+        setNotesMode(true);
         return { id: newId, text: newText };
       }
       return prev;
@@ -91,7 +98,8 @@ export default function NotesIntract({ currentSearch, UserData }) {
                 notesMode ?
                   <img src={videoData?.data[snapShotInfo.id]?.imgUrl || ""} alt={videoData?.data[snapShotInfo.id]?.imgText || ""} />
                   :
-                  <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${Math.floor(videoData.data[snapShotInfo.id]?.timestamp)}`}></iframe>
+                  <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${currentTimestamp}`}></iframe>
+                /*{ <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${Math.floor(videoData.data[snapShotInfo.id]?.timestamp)}`}></iframe> }*/
               }
             </div>
           )
@@ -121,7 +129,7 @@ export default function NotesIntract({ currentSearch, UserData }) {
                 setNotesMode((prev) => {
                   // if (prev == true) {
                   //   const interval = setInterval(() => {
-                  //     let captureButton = document.getElementById('Frametagger-capture');
+                  //     let captureButton = document.getElementById('Youtube Study Kit-capture');
                   //     if (!captureButton) {
                   //       addFunctionalities();
                   //     } else {

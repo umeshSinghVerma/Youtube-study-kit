@@ -12,4 +12,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   });
   
 
-chrome.runtime.setUninstallURL('https://frametagger.com');
+chrome.runtime.setUninstallURL('https://Youtube Study Kit.com');

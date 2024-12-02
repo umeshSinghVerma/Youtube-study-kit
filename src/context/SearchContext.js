@@ -3,6 +3,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { getSubTitles } from '../lib/getSubtitles';
 import { useSearchParams } from 'react-router-dom';
+import { getData } from '../lib/getData';
 
 export const SearchContext = createContext();
 
@@ -30,21 +31,41 @@ async function getVideoData(setUserData, setLoading, setCurrentsearch, passedVid
 
 
 
+
+
 export const SearchProvider = ({ children }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [currentSearch, setCurrentsearch] = useState(null);
     const [loading, setLoading] = useState(false);
     const [UserData, setUserData] = useState({});
+    const [currentTimestamp, setCurrentTimestamp] = useState(null);
     let [searchParams, setSearchParams] = useSearchParams();
-    console.log("searchParams ",searchParams.get("videoId"));
+    const [GeminiApiKey, setGeminiApiKey] = useState(false);
+    const [model, setModel] = useState('gemini');
+
     useEffect(() => {
         const passedVideoId = searchParams.get("videoId");
+        const timestamp = searchParams.get("timestamp");
         getVideoData(setUserData, setLoading, setCurrentsearch, passedVideoId);
+        if (passedVideoId) {
+            if (timestamp) {
+                setCurrentTimestamp(Math.floor(timestamp));
+            }
+        }
+    }, [searchParams, currentSearch])
+
+    async function getGeminiApi() {
+        const savedKey = await getData("gemini-api-key");
+        setGeminiApiKey(savedKey);
+    }
+    useEffect(() => {
+        getGeminiApi();
     }, [])
 
     const videoMapById = {};
     const videoMapByTitle = {};
+
 
     Object.keys(UserData).forEach((key) => {
         videoMapById[key] = UserData[key].heading;
@@ -58,6 +79,7 @@ export const SearchProvider = ({ children }) => {
     };
 
     const updateCurrentSearch = (videoid) => {
+        setSearchParams({ videoId: videoid });
         setCurrentsearch(videoid);
     }
 
@@ -92,7 +114,13 @@ export const SearchProvider = ({ children }) => {
             updateCurrentSearch,
             currentSearch,
             UserData,
-            loading
+            loading,
+            currentTimestamp,
+            setCurrentTimestamp,
+            GeminiApiKey,
+            setGeminiApiKey,
+            model,
+            setModel
         }}>
             {children}
         </SearchContext.Provider>

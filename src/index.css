@@ -1,8 +1,69 @@
 @tailwind base;
+
+@tailwind base;
+
+/* Override Preflight for headings and lists */
+@layer base {
+  /* Restore default heading styles (sizes, margins) */
+  h1 {
+    font-size: 2em; /* Browser default for <h1> */
+    font-weight: bold;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+  }
+  h2 {
+    font-size: 1.5em; /* Browser default for <h2> */
+    font-weight: bold;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+  }
+  h3 {
+    font-size: 1.17em; /* Browser default for <h3> */
+    font-weight: bold;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+  }
+  h4 {
+    font-size: 1em; /* Browser default for <h4> */
+    font-weight: bold;
+    margin-block-start: 1.33em;
+    margin-block-end: 1.33em;
+  }
+  h5 {
+    font-size: 0.83em; /* Browser default for <h5> */
+    font-weight: bold;
+    margin-block-start: 1.67em;
+    margin-block-end: 1.67em;
+  }
+  h6 {
+    font-size: 0.67em; /* Browser default for <h6> */
+    font-weight: bold;
+    margin-block-start: 2.33em;
+    margin-block-end: 2.33em;
+  }
+
+  ol,
+  ul {
+    list-style: initial;
+    margin: initial;
+    padding: initial;
+    margin-left: 20px;
+  }
+  li {
+    margin: 10px 0px;
+  }
+  a {
+    color: #007bff; /* A video-like blue */
+    text-decoration: none; /* Remove default underline */
+    font-weight: bold; /* Make it stand out */
+    cursor: pointer; /* Pointer cursor to show it's clickable */
+  }
+}
+
 @tailwind components;
 @tailwind utilities;
 
-body{
+body {
   font-size: 1rem;
 }
 
@@ -85,7 +146,7 @@ body{
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 0px;
 }
 
 ::-webkit-scrollbar-track {

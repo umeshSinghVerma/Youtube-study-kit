@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import { LanguageProvider } from '../context/LanguageContext'
 
 export default function Intract() {
-    const { loading, currentSearch, updateCurrentSearch, UserData } = useContext(SearchContext);
+    const { loading, currentSearch, UserData } = useContext(SearchContext);
     return (
         <LanguageProvider>
             <div className='bg-[#0f0f0f] h-screen w-screen flex flex-col'>

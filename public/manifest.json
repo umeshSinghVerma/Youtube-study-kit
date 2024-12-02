@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "version": "2.1",
-  "name": "FrameTagger",
+  "name": "Youtube Study Kit",
   "permissions": [
     "activeTab",
     "storage",
@@ -16,7 +16,7 @@
     "48": "projectLogo.png"
   },
   "action": {
-    "default_title": "FrameTagger",
+    "default_title": "Youtube Study Kit",
     "default_popup": "index.html"
   },
   "background": {

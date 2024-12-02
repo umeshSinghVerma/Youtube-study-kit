@@ -96,7 +96,7 @@ function MYDocument({ videoData }) {
               style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
               src="/projectLogo.png"
             />
-            <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
+            <Link target="_blank" href="https://Youtube Study Kit.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
           </View>
         </Page>
       </Document>
@@ -140,7 +140,7 @@ function CompleteListDocument({ completeData }) {
                   style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
                   src="/projectLogo.png"
                 />
-                <Link target="_blank" href="https://frametagger.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using FrameTagger</Link>
+                <Link target="_blank" href="https://Youtube Study Kit.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
               </View>
             </Page>
           )
@@ -151,8 +151,8 @@ function CompleteListDocument({ completeData }) {
   }
 }
 const Header = ({ activeTab, setActiveTab, videoId, videoData, isList }) => {
-  console.log("this is videoId",videoId);
-  const title = videoData?.heading || "FrameTagger";
+  console.log("this is videoId", videoId);
+  const title = videoData?.heading || "Youtube Study Kit";
   return (
     <div className='bg-[#323639] flex items-center justify-between'>
       <div className='flex  items-center'>
@@ -160,22 +160,22 @@ const Header = ({ activeTab, setActiveTab, videoId, videoData, isList }) => {
         <p style={{ color: "#f1f1f1", textOverflow: "ellipsis", overflow: 'hidden', whiteSpace: 'nowrap' }} className='mb-0.5 text-sm max-w-[200px]'>{title}</p>
       </div>
 
-      {videoData && videoId && <div className='flex gap-2 mx-2 mb-[-2px]'>
+      {<div className='flex gap-2 mx-2 mb-[-2px]'>
         <button
           onClick={() => {
-            chrome.runtime.sendMessage({ action: "create_tab", url: `index.html#/intract?videoId=${videoId}` });
+            chrome.runtime.sendMessage({ action: "create_tab", url: `index.html#/intract${(videoId && videoData) ? `?videoId=${videoId}` : ""}` });
           }}
           className="text-white h-[32px] w-[32px] mb-[3px]  rounded-full hover:bg-[#ffffff16] flex items-center justify-center"
         >
           <Expand height={16} width={16} />
         </button>
-        <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
+        {videoData && videoId && <PDFDownloadLink document={<MYDocument videoData={videoData} />} fileName={`${title}.pdf`}>
           {({ loading }) => (!loading &&
             <button className='h-[32px] w-[32px] mr-2  rounded-full hover:bg-[#ffffff16] flex items-center justify-center'>
               <img src="/download.svg" alt="download" title='download' />
             </button>)
           }
-        </PDFDownloadLink>
+        </PDFDownloadLink>}
       </div>}
     </div>
   )
@@ -251,6 +251,7 @@ function App() {
               const userData = result.userData;
               if (ListId) {
                 const data = await getPlaylistVideoList(ListId);
+                console.log('this is the data I want ', data);
                 if (data) {
                   setCompleteData({
                     list: ListId,
@@ -284,7 +285,7 @@ function App() {
 
   switch (activeTab) {
     case 'pdf':
-      console.log("Video Id ",completeData.videoId)
+      console.log("Video Id ", completeData.videoId)
       return (
         <div className='flex flex-col w-full bg-[#525659] h-screen'>
           <div className='sticky top-0'>

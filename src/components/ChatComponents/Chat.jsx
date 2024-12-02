@@ -1,14 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ChatSearch from './ChatSearch';
 import ChatSearchResult from './ChatSearchResult';
-import { getSubTitles } from '../../lib/getSubtitles';
-import { SearchContext } from '../../context/SearchContext';
+import SubtitlesLoading from '../SubtitlesLoading';
 
 
-export default function Chat({ promptSession }) {
-    const [messages, setMessages] = useState(["", "Hii How Can I help you"]);
+export default function Chat({ promptSession, subTitlesLoading,timestampedSubtitles, messages, setMessages, model, setModel }) {
     const messagesEndRef = useRef(null);
-
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -19,9 +16,19 @@ export default function Chat({ promptSession }) {
     return (
         <div className='h-full flex flex-col'>
             <div ref={messagesEndRef} className='flex-grow h-[0px] my-2 pr-2 overflow-y-auto'>
-                <ChatSearchResult messages={messages} />
+                {
+                    !subTitlesLoading ? <ChatSearchResult messages={messages} /> : <SubtitlesLoading />
+                }
             </div>
-            <ChatSearch setMessages={setMessages} promptSession={promptSession} />
+            <ChatSearch
+                messages={messages}
+                setMessages={setMessages}
+                promptSession={promptSession}
+                timestampedSubtitles={timestampedSubtitles}
+                subTitlesLoading={subTitlesLoading}
+                model={model}
+                setModel={setModel}
+            />
         </div>
     );
 }

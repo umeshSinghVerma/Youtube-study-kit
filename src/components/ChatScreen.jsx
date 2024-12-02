@@ -5,10 +5,11 @@ import Summary from './Summary'
 import { getSubTitles } from '../lib/getSubtitles'
 import { LanguageContext } from '../context/LanguageContext'
 import { detectLanguage } from '../lib/detectLanguage'
+import { initializeSummarizer } from '../lib/initializeSummarizer'
+import { SearchContext } from '../context/SearchContext'
 const initiatePromptSession = async (systemPrompt, setPromptSession) => {
     try {
         const updatedPrompt = systemPrompt.slice(0, 10000);
-        console.log(updatedPrompt);
         const session = await window.ai.languageModel.create({
             systemPrompt: updatedPrompt
         });
@@ -19,41 +20,63 @@ const initiatePromptSession = async (systemPrompt, setPromptSession) => {
     }
 }
 
-const getVideoSubtitles = async (videoId, setPromptSession, setVideoSubtitles, convertInputText) => {
+const getVideoSubtitles = async (videoId, setPromptSession, setVideoSubtitles, setTimestampedSubtitles, convertInputText, setSubtitlesLoading, model) => {
+    setSubtitlesLoading(true);
     try {
         const subtitles = await getSubTitles(videoId);
-        console.log("subtitles ",subtitles);
-        if (subtitles && subtitles.text) {
+        if (subtitles && subtitles.text && subtitles.subtitles) {
+            setTimestampedSubtitles(JSON.stringify(subtitles.subtitles));
+            setVideoSubtitles(subtitles.text)
+        }
+        if (subtitles && subtitles.text && model == 'chrome-built-in') {
             const addOnText = "You are given the subtitles of a Youtube video, when user ask you have to answer with the reference to the video subtitles, Make sure to give short and consise answer do not give long text unless explicitly mentioned, Subtitles are : "
             const subTitleText = subtitles.text;
-            console.log("subtitles", subTitleText);
             const subtitlesLanguage = await detectLanguage(subTitleText.slice(0, 500));
-            console.log("this is the subtitles language ", subtitlesLanguage);
 
             let updateSubtitlesText = subTitleText;
             if (subtitlesLanguage !== "en") {
-                updateSubtitlesText = await convertInputText(subTitleText.slice(0, 9000),subtitlesLanguage);
+                updateSubtitlesText = await convertInputText(subTitleText.slice(0, 9000), subtitlesLanguage);
             }
-            console.log("updated subtitles ",updateSubtitlesText);
             setVideoSubtitles(addOnText + updateSubtitlesText);
             await initiatePromptSession(addOnText + updateSubtitlesText, setPromptSession);
         }
     } catch (e) {
         console.log(e, "error in fetching subtitles");
     }
+    finally {
+        setSubtitlesLoading(false);
+    }
     return "";
 }
 export default function ChatScreen({ currentSearch }) {
     const [promptSession, setPromptSession] = useState(null);
     const [videoSubTitles, setVideoSubtitles] = useState(null);
-    const { convertInputText } = useContext(LanguageContext);
+    const [timestampedSubtitles, setTimestampedSubtitles] = useState(null);
+    const { convertInputText, outputLanguage } = useContext(LanguageContext);
+    const {GeminiApiKey,model,setModel} = useContext(SearchContext);
+    const [subTitlesLoading, setSubtitlesLoading] = useState(false);
+    const [messages, setMessages] = useState(["", "Hii How Can I help you"]);
+    const [summary, setSummary] = useState(null);
+    const [summaryLoading, setSummaryLoading] = useState(false);
+
+    useEffect(() => {
+        if (videoSubTitles != null) {
+            initializeSummarizer(videoSubTitles, setSummary, setSummaryLoading, model, outputLanguage,GeminiApiKey);
+        }
+    }, [videoSubTitles, model, outputLanguage]);
+
+
+
+    useEffect(() => {
+        setMessages(["", "Hii How Can I help you"]);
+    }, [currentSearch])
 
     useEffect(() => {
         if (promptSession != null) {
             promptSession.destroy();
         }
         if (currentSearch) {
-            getVideoSubtitles(currentSearch, setPromptSession, setVideoSubtitles, convertInputText);
+            getVideoSubtitles(currentSearch, setPromptSession, setVideoSubtitles, setTimestampedSubtitles, convertInputText, setSubtitlesLoading, model);
         }
     }, [currentSearch])
     return (
@@ -64,9 +87,21 @@ export default function ChatScreen({ currentSearch }) {
                     <TabsTrigger value="Flashcards">Flashcards</TabsTrigger>
                     <TabsTrigger value="Summary">Summary</TabsTrigger>
                 </TabsList>
-                <TabsContent value="Chat"><Chat promptSession={promptSession} /></TabsContent>
-                <TabsContent value="Flashcards">Change your password here.</TabsContent>
-                <TabsContent value="Summary"><Summary subtitles={videoSubTitles} /></TabsContent>
+                <TabsContent value="Chat">
+                    <Chat
+                        promptSession={promptSession}
+                        messages={messages}
+                        setMessages={setMessages}
+                        timestampedSubtitles={timestampedSubtitles}
+                        subTitlesLoading={subTitlesLoading}
+                        model={model}
+                        setModel={setModel}
+                    />
+                </TabsContent>
+                <TabsContent value="Flashcards">Flashcards will be generated here</TabsContent>
+                <TabsContent value="Summary">
+                    <Summary summary={summary} loading={summaryLoading} model={model} />
+                </TabsContent>
             </Tabs>
         </div>
     )

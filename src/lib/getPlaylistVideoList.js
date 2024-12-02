@@ -1,13 +1,26 @@
-import axios from 'axios';
-export async function getPlaylistVideoList(playlistId) {
+export async function getPlaylistVideoList(playListId) {
+    const bodyContent = JSON.stringify({
+        "playListId": "PLBlnK6fEyqRiVhbXDGLXDk_OQAeuVcp2O"
+    });
+
     try {
-        const data = await axios.post("https://extension-server-pi.vercel.app/getPlayListVideoList", {
-            playlistId: playlistId
-        })
+        const response = await fetch("https://extension-server-pi.vercel.app/getPlayListVideoList", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: bodyContent,
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
         console.log(data);
         return data;
     } catch (e) {
-        console.log(e);
-        return [];
+        console.error(e, "error in fetching playlist videos");
+        return null;
     }
-};
+}

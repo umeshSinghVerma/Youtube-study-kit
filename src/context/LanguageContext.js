@@ -1,6 +1,6 @@
 /* global chrome */
 
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 
 export const LanguageContext = createContext();
 
@@ -32,7 +32,6 @@ async function processOutputLanguage(outputLanguage, setOutputTranslator) {
     } catch (error) {
         console.log(error, "error in process output Language");
     }
-
 }
 
 async function processInputLanguage(inputLanguage, setInputTranslator) {
@@ -72,9 +71,9 @@ export const LanguageProvider = ({ children }) => {
     const [outputTranslator, setOutputTranslator] = useState(null);
     const [currentOutputLanguage, setCurrentOutputLanguage] = useState(null);
 
-    async function convertInputText(inputText, inputlang) {
+    const convertInputText = useCallback(async (inputText, inputlang) => {
         let translator = inputTranslator;
-        if (inputLanguage != inputlang) {
+        if (inputLanguage !== inputlang) {
             setInputLanguage(inputlang);
             translator = await processInputLanguage(inputlang, setInputTranslator);
         }
@@ -82,43 +81,57 @@ export const LanguageProvider = ({ children }) => {
             const translation = await translator.translate(inputText);
             console.log("translation ", translation);
             return translation;
-        } else {
-            return "";
         }
-    }
+        return "";
+    }, [inputLanguage, inputTranslator]);
 
-    async function convertOutputText(outputText) {
-        if (outputLanguage == 'en') return outputText;
+    useEffect(() => {
+        console.log('current Output Lanuage ', outputLanguage);
+    }, [outputLanguage]);
+
+    const convertOutputText = useCallback(async (outputText) => {
+        const currentLang = outputLanguage;
+
+        if (currentLang === 'en') return outputText;
+
         let translator = outputTranslator;
-        if (outputLanguage != currentOutputLanguage) {
-            setCurrentOutputLanguage(outputLanguage);
-            translator = await processOutputLanguage(outputLanguage, setOutputTranslator);
+        if (currentLang !== currentOutputLanguage) {
+            setCurrentOutputLanguage(currentLang);
+            translator = await processOutputLanguage(currentLang, setOutputTranslator);
         }
+
         if (translator) {
             const translation = await translator.translate(outputText);
             return translation;
-        } else {
-            return "";
         }
-    }
-    const updateOutputLanguage = (outputLang) => {
+        return "";
+    }, [outputLanguage, outputTranslator, currentOutputLanguage]);
+
+    const updateOutputLanguage = useCallback((outputLang) => {
         setOutputLanguage(outputLang);
-    }
-    const getOutputLanguage = () => {
+        setCurrentOutputLanguage(null);
+        setOutputTranslator(null);
+    }, []);
+
+    const getOutputLanguage = useCallback(() => {
         return outputLanguage;
-    }
-    const getInputLanguage = () => {
+    }, [outputLanguage]);
+
+    const getInputLanguage = useCallback(() => {
         return inputLanguage;
-    }
+    }, [inputLanguage]);
+
+    const contextValue = {
+        convertInputText,
+        convertOutputText,
+        updateOutputLanguage,
+        getOutputLanguage,
+        getInputLanguage,
+        outputLanguage
+    };
 
     return (
-        <LanguageContext.Provider value={{
-            convertInputText,
-            convertOutputText,
-            updateOutputLanguage,
-            getOutputLanguage,
-            getInputLanguage
-        }}>
+        <LanguageContext.Provider value={contextValue}>
             {children}
         </LanguageContext.Provider>
     );

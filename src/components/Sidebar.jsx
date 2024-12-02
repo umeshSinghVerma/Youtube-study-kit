@@ -38,7 +38,7 @@ export default function Sidebar() {
                                     <MenuIcon height={24} width={24} />
                                 </span>
                             </SheetClose>
-                            <a target='_blank' href='https://frametagger.com' className='flex text-white items-center justify-center gap-1'>
+                            <a target='_blank' href='https://Youtube Study Kit.com' className='flex text-white items-center justify-center gap-1'>
                                 <img src="/projectLogo.png" alt="" width={30} />
                                 <p style={{ fontFamily: "Oswald" }} className='text-xl'>YouTube Study Kit</p>
                             </a>

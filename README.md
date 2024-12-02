@@ -1,8 +1,8 @@
-# YouTube Study Helper Chrome Extension
+# YouTube Study Kit Chrome Extension
 
 ## Purpose
 
-The YouTube Study Helper Chrome Extension is designed to assist users in studying from YouTube videos by enabling timestamped snapshots with annotations, which are then compiled into a downloadable PDF. This extension aims to make video-based studying more efficient and organized, while also supporting future AI-powered summarization features for enhanced learning.
+The YouTube Study Kit Chrome Extension is designed to assist users in studying from YouTube videos by enabling timestamped snapshots with annotations, which are then compiled into a downloadable PDF. This extension aims to make video-based studying more efficient and organized, while also supporting future AI-powered summarization features for enhanced learning.
 
 ## Features
 
@@ -43,14 +43,12 @@ The YouTube Study Helper Chrome Extension is designed to assist users in studyin
   - **Text Annotations**: Any annotation text provided by the user, displayed below each image.
 - **Downloadable PDF**: Users can download this PDF, creating a permanent, organized study resource for each video.
 
-### 5\. AI-Powered Summarization and Flashcards (Future Enhancements)
+### 5\. AI-Powered Summarization and Chat with Video
 
-- The extension is designed to support future integration with OpenAI’s API for enhanced study tools:
+- The extension is designed to support integration with Chrome built in Ai APIs for enhanced study tools:
   - **Subtitle Extraction**: Retrieves the full subtitle data with timestamps from YouTube videos.
   - **Summarization**: Generates a concise summary of the video, helping users quickly review the main points.
-  - **Flashcard Generation**: Automatically creates flashcards with questions based on key concepts in the video, enabling active recall practice.
-  - **Contextual Q&A**: Allows users to ask follow-up questions based on the video content, with OpenAI generating responses that consider the subtitle context.
-- **User Control**: A toggle or setting lets users choose whether to enable these AI-powered features, ensuring they only run when desired.
+  - **Contextual Q&A**: Allows users to ask follow-up questions based on the video content, with Chrome Built-in generating responses that consider the subtitle context.
 
 ---
 
