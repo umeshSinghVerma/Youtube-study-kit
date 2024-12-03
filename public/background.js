@@ -13,4 +13,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   });
   
 
-chrome.runtime.setUninstallURL('https://Youtube Study Kit.com');
+chrome.runtime.setUninstallURL('https://youtube-study-kit.vercel.app/');
