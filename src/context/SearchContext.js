@@ -42,7 +42,8 @@ export const SearchProvider = ({ children }) => {
     const [currentTimestamp, setCurrentTimestamp] = useState(null);
     let [searchParams, setSearchParams] = useSearchParams();
     const [GeminiApiKey, setGeminiApiKey] = useState(false);
-    const [model, setModel] = useState('chrome-built-in');
+    const [model, setModel] = useState('gemini');
+    const [canUseChromeAi, setCanUseChromeAi] = useState(false);
 
     useEffect(() => {
         const passedVideoId = searchParams.get("videoId");
@@ -59,8 +60,18 @@ export const SearchProvider = ({ children }) => {
         const savedKey = await getData("gemini-api-key");
         setGeminiApiKey(savedKey);
     }
+    async function canUseLanguageModel() {
+        const check = await window?.ai?.languageModel?.capabilities();
+        if (check && check.available) {
+            setCanUseChromeAi(true);
+            setModel('chrome-built-in');
+        } else {
+            setModel('gemini');
+        }
+    }
     useEffect(() => {
         getGeminiApi();
+        canUseLanguageModel();
     }, [])
 
     const videoMapById = {};
@@ -120,7 +131,8 @@ export const SearchProvider = ({ children }) => {
             GeminiApiKey,
             setGeminiApiKey,
             model,
-            setModel
+            setModel,
+            canUseChromeAi
         }}>
             {children}
         </SearchContext.Provider>

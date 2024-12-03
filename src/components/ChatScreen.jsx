@@ -69,7 +69,7 @@ export default function ChatScreen({ currentSearch }) {
 
             const promptSessionArray = await Promise.all(subtitleChunkArray.map(async (subtitleChunk) => {
                 const updatedSubtitleChunkPrompt = TrainingChromePrompt(subtitleChunk, currentSearch, outputLanguage);
-                const session = await window.ai.languageModel.create({
+                const session = await window?.ai?.languageModel?.create({
                     systemPrompt: updatedSubtitleChunkPrompt,
                 });
                 return session;
@@ -136,7 +136,7 @@ export default function ChatScreen({ currentSearch }) {
 
             console.log("master Prompt", masterPrompt);
             try {
-                const MasterSession = await window.ai.languageModel.create({
+                const MasterSession = await window?.ai?.languageModel?.create({
                     systemPrompt: masterPrompt,
                 });
                 setMasterPromptSession(MasterSession);

@@ -17,7 +17,7 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
     const [disabled, setDisabled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { convertOutputText, outputLanguage } = useContext(LanguageContext);
-    const { currentSearch, GeminiApiKey } = useContext(SearchContext);
+    const { currentSearch, GeminiApiKey,canUseChromeAi } = useContext(SearchContext);
 
     const handleStreamResponse = async (newChunk) => {
         try {
@@ -99,7 +99,7 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
                             <SelectValue placeholder="gemini" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="chrome-built-in">chrome-built-in</SelectItem>
+                            {canUseChromeAi && <SelectItem value="chrome-built-in">chrome-built-in</SelectItem>}
                             <SelectItem value="gemini">gemini</SelectItem>
                         </SelectContent>
                     </Select>

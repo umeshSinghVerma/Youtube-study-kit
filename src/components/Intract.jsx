@@ -1,3 +1,5 @@
+/* global chrome */
+
 import React, { useContext, useEffect, useState } from 'react'
 import ChatScreen from './ChatScreen'
 import { SearchContext, SearchProvider } from '../context/SearchContext'
@@ -6,7 +8,6 @@ import NotesIntract from './NotesIntract'
 import NoSearchComponent from './NoSearchComponent'
 import { useSearchParams } from 'react-router-dom'
 import { LanguageProvider } from '../context/LanguageContext'
-
 export default function Intract() {
     const { loading, currentSearch, UserData } = useContext(SearchContext);
     return (
