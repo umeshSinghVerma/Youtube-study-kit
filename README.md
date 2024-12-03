@@ -2,6 +2,9 @@
 
 ![Demo](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20video%20(2).gif?raw=true)
 
+![Demo](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20Demonstration.gif?raw=true)
+
+
 ## Purpose
 
 The YouTube Study Kit Chrome Extension is designed to assist users in studying from YouTube videos by enabling timestamped snapshots with annotations, which are then compiled into a downloadable PDF. This extension aims to make video-based studying more efficient and organized, while also supporting future AI-powered summarization features for enhanced learning.
