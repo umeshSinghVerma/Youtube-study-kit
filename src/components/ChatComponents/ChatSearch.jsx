@@ -8,12 +8,12 @@ import {
 } from "../ui/Select";
 import PaperclipIcon from '../PaperClipIcon';
 import ArrowUpIcon from '../ArrowUpIcon';
-import { getPromptResult } from '../../lib/getPromptResult';
+import { getPromptResult, getStreamingPromptResult } from '../../lib/getPromptResult';
 import { LanguageContext } from '../../context/LanguageContext';
 import { getGeminiResponse } from '../../lib/getGeminiResponse';
 import { SearchContext } from '../../context/SearchContext';
 
-export default function ChatSearch({ messages, setMessages, timestampedSubtitles, promptSession, subTitlesLoading, model, setModel }) {
+export default function ChatSearch({ messages, setMessages, timestampedSubtitles, masterPromptSession, promptSessionArray, subTitlesLoading, model, setModel }) {
     const [disabled, setDisabled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { convertOutputText, outputLanguage } = useContext(LanguageContext);
@@ -38,7 +38,32 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
             setMessages((prevMessages) => [...prevMessages, searchQuery, ""]);
             setSearchQuery("");
             if (model == 'chrome-built-in') {
-                await getPromptResult(promptSession, searchQuery, handleStreamResponse);
+                try {
+                    const sessionIdString = await masterPromptSession.prompt(searchQuery);
+                    console.log("sessionIdString", sessionIdString);
+
+                    // Extracting the last character and converting it to a number
+                    let promptSessionId = parseInt(sessionIdString.slice(-1), 10);
+
+                    console.log("promptSessionId", promptSessionId);
+
+                    // Validate and adjust `promptSessionId`
+                    if (Number.isNaN(promptSessionId) || promptSessionId >= promptSessionArray.length) {
+                        promptSessionId = 0;
+                    }
+
+                    // Call `getStreamingPromptResult` with a valid `promptSessionId`
+                    const UpdatedQuery = searchQuery + " give me the response in the described format, give integer time after each paragraph in curly braces for example {45} etc. Never include time range in curly braces. Give answer in headings, subheadings and bullet points"
+                    await getStreamingPromptResult(
+                        promptSessionArray[promptSessionId],
+                        UpdatedQuery,
+                        handleStreamResponse
+                    );
+
+
+                } catch (error) {
+                    console.log("Error in handleSearch:", error);
+                }
             } else if (model == 'gemini') {
                 console.log("came in gemini")
                 const prompt = {
@@ -69,7 +94,7 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
             />
             <div className='text-[#ffffffe0] flex justify-between'>
                 <div>
-                    <Select onValueChange={(val) => setModel(val)} defaultValue='gemini'>
+                    <Select onValueChange={(val) => setModel(val)} defaultValue={model}>
                         <SelectTrigger className="bg-transparent">
                             <SelectValue placeholder="gemini" />
                         </SelectTrigger>

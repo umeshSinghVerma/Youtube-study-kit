@@ -42,7 +42,7 @@ export const SearchProvider = ({ children }) => {
     const [currentTimestamp, setCurrentTimestamp] = useState(null);
     let [searchParams, setSearchParams] = useSearchParams();
     const [GeminiApiKey, setGeminiApiKey] = useState(false);
-    const [model, setModel] = useState('gemini');
+    const [model, setModel] = useState('chrome-built-in');
 
     useEffect(() => {
         const passedVideoId = searchParams.get("videoId");

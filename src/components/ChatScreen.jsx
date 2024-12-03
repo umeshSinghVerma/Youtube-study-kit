@@ -7,78 +7,174 @@ import { LanguageContext } from '../context/LanguageContext'
 import { detectLanguage } from '../lib/detectLanguage'
 import { initializeSummarizer } from '../lib/initializeSummarizer'
 import { SearchContext } from '../context/SearchContext'
-const initiatePromptSession = async (systemPrompt, setPromptSession) => {
-    try {
-        const updatedPrompt = systemPrompt.slice(0, 10000);
-        const session = await window.ai.languageModel.create({
-            systemPrompt: updatedPrompt
-        });
-        setPromptSession(session);
-    }
-    catch (e) {
-        console.log(e, "Kindly enable the languageModel support in your browser");
-    }
-}
+import TrainingChromePrompt from '../lib/TrainingChromePrompt'
+import PromptSessionIdentifierKeywordsPrompt from '../lib/PromptSessionIdentifierKeywordPrompt'
+import MasterSessionPrompt from '../lib/MasterSessionPrompt'
 
-const getVideoSubtitles = async (videoId, setPromptSession, setVideoSubtitles, setTimestampedSubtitles, convertInputText, setSubtitlesLoading, model) => {
-    setSubtitlesLoading(true);
-    try {
-        const subtitles = await getSubTitles(videoId);
-        if (subtitles && subtitles.text && subtitles.subtitles) {
-            setTimestampedSubtitles(JSON.stringify(subtitles.subtitles));
-            setVideoSubtitles(subtitles.text)
-        }
-        if (subtitles && subtitles.text && model == 'chrome-built-in') {
-            const addOnText = "You are given the subtitles of a Youtube video, when user ask you have to answer with the reference to the video subtitles, Make sure to give short and consise answer do not give long text unless explicitly mentioned, Subtitles are : "
-            const subTitleText = subtitles.text;
-            const subtitlesLanguage = await detectLanguage(subTitleText.slice(0, 500));
-
-            let updateSubtitlesText = subTitleText;
-            if (subtitlesLanguage !== "en") {
-                updateSubtitlesText = await convertInputText(subTitleText.slice(0, 9000), subtitlesLanguage);
-            }
-            setVideoSubtitles(addOnText + updateSubtitlesText);
-            await initiatePromptSession(addOnText + updateSubtitlesText, setPromptSession);
-        }
-    } catch (e) {
-        console.log(e, "error in fetching subtitles");
-    }
-    finally {
-        setSubtitlesLoading(false);
-    }
-    return "";
-}
 export default function ChatScreen({ currentSearch }) {
-    const [promptSession, setPromptSession] = useState(null);
-    const [videoSubTitles, setVideoSubtitles] = useState(null);
-    const [timestampedSubtitles, setTimestampedSubtitles] = useState(null);
+    const [videoSubTitles, setVideoSubtitles] = useState({ text: null, subtitiles: null });
     const { convertInputText, outputLanguage } = useContext(LanguageContext);
-    const {GeminiApiKey,model,setModel} = useContext(SearchContext);
+    const { GeminiApiKey, model, setModel } = useContext(SearchContext);
     const [subTitlesLoading, setSubtitlesLoading] = useState(false);
-    const [messages, setMessages] = useState(["", "Hii How Can I help you"]);
+    const [messages, setMessages] = useState([]);
     const [summary, setSummary] = useState(null);
+    const [chromePromptSessionLoading, setChromePromptSessionLoading] = useState(false);
     const [summaryLoading, setSummaryLoading] = useState(false);
+    const [promptSessionArray, setPromptSessionArray] = useState([]);
+    const [masterPromptSession, setMasterPromptSession] = useState(null);
 
-    useEffect(() => {
-        if (videoSubTitles != null) {
-            initializeSummarizer(videoSubTitles, setSummary, setSummaryLoading, model, outputLanguage,GeminiApiKey);
+    async function fetchVideoSubtitiles(videoId) {
+        try {
+            setSubtitlesLoading(true);
+            const subtitles = await getSubTitles(videoId);
+            console.log(subtitles);
+            if (subtitles && subtitles.text && subtitles.subtitles) {
+                setVideoSubtitles({ text: subtitles.text, subtitiles: subtitles.subtitles })
+            }
+        } catch (error) {
+            console.log(error, "error in fetching subtitles")
+        } finally {
+            setSubtitlesLoading(false);
         }
-    }, [videoSubTitles, model, outputLanguage]);
+    }
+
+    async function initiateChromePromptSession(videoSubTitles) {
+        try {
+            setChromePromptSessionLoading(true);
+            const rawCompleteSubtitles = videoSubTitles.subtitiles.map((subtitleObject) => ({
+                text: subtitleObject.text,
+                offset: parseInt(subtitleObject.offset),
+            }));
+
+            const subtitlesLanguage = await detectLanguage(rawCompleteSubtitles[0].text);
+
+            let completeSubtitlesArray = await Promise.all(rawCompleteSubtitles.map(async (subtitleObject) => {
+                let translatedText = subtitleObject.text;
+                if (subtitlesLanguage !== 'en') {
+                    translatedText = await convertInputText(subtitleObject.text, subtitlesLanguage);
+                }
+                return { text: translatedText, offset: subtitleObject.offset };
+            }));
+
+            let completeSubtitles = JSON.stringify(completeSubtitlesArray);
+            console.log("these are completeSubtitles", completeSubtitles);
 
 
+            const subtitleChunkArray = [];
+            for (let i = 0; i < completeSubtitles.length; i += 9500) {
+                subtitleChunkArray.push(completeSubtitles.slice(i, i + 9500));
+            }
 
-    useEffect(() => {
-        setMessages(["", "Hii How Can I help you"]);
-    }, [currentSearch])
+            console.log(subtitleChunkArray);
 
-    useEffect(() => {
-        if (promptSession != null) {
-            promptSession.destroy();
+            const promptSessionArray = await Promise.all(subtitleChunkArray.map(async (subtitleChunk) => {
+                const updatedSubtitleChunkPrompt = TrainingChromePrompt(subtitleChunk, currentSearch, outputLanguage);
+                const session = await window.ai.languageModel.create({
+                    systemPrompt: updatedSubtitleChunkPrompt,
+                });
+                return session;
+            }));
+
+            console.log(promptSessionArray, "promptSessionArray");
+
+            setPromptSessionArray(promptSessionArray);
+
+            const PromptSessionIdentifierKeywordsArray = await Promise.all(promptSessionArray.map(async (session) => {
+                console.log(session);
+                let keywords = "";
+                try {
+                    const prompt = "Return the comma-separated keywords you generated earlier. Do not include any additional explanations or text, just the keywords themselves.";
+                    keywords = await session.prompt(prompt);
+                    console.log(keywords);
+                } catch (error) {
+                    console.log(error, "error in generating keywords");
+                }
+                return keywords;
+            }));
+
+            console.log(PromptSessionIdentifierKeywordsArray, "PromptSessionIdentifierKeywordsArray");
+
+            const keywordMap = {};
+            for (let i = 0; i < PromptSessionIdentifierKeywordsArray.length; i++) {
+                keywordMap[i] = PromptSessionIdentifierKeywordsArray[i];
+            }
+
+            const masterPrompt = `You are a router for selecting the appropriate AI model based on user queries.  You have access to a map of keywords associated with each model.
+
+            **Keyword Map:**
+            
+            \`\`\`json
+            ${JSON.stringify(keywordMap)}
+            \`\`\`
+            
+            **Instructions:**
+            
+            1. **Analyze the user query:**  Identify the key topics and concepts in the user's query.
+            
+            2. **Match keywords:**  Compare the query's key concepts to the keywords associated with each model in the keyword map.
+            
+            3. **Select the best match:**  Choose the model whose keywords have the strongest overlap with the query's key concepts. If multiple models seem equally relevant, choose the one with the most specific keywords related to the query.
+            
+            4. **Return the selected model's ID:** Return only the ID of the selected model (e.g., "session0", "session1", etc.). You have to just select session, Do not include any explanations or additional text.  If no model matches the query, return "session0".
+            
+            
+            **Example:**
+            
+            \`\`\`
+            User Query: "What were the main challenges discussed in the section about project management?"
+            
+            Keyword Map:
+            {
+              "session0": "introduction, welcome, overview",
+              "session1": "project management, challenges, planning, execution, risks",
+              "session2": "conclusion, next steps, questions"
+            }
+            
+            Response: session1
+            \`\`\`
+            `;
+
+            console.log("master Prompt", masterPrompt);
+            try {
+                const MasterSession = await window.ai.languageModel.create({
+                    systemPrompt: masterPrompt,
+                });
+                setMasterPromptSession(MasterSession);
+            } catch (error) {
+                console.log(error, "error in generating master prompt")
+            }
+
+        } catch (error) {
+            console.error("Error initiating prompt sessions:", error); // More specific error message
+        } finally {
+            setChromePromptSessionLoading(false);
         }
+    }
+    async function initiateSummarizer(videoSubTitles) {
+        initializeSummarizer(videoSubTitles.text, setSummary, setSummaryLoading, model, outputLanguage, GeminiApiKey);
+    }
+
+    useEffect(() => {
         if (currentSearch) {
-            getVideoSubtitles(currentSearch, setPromptSession, setVideoSubtitles, setTimestampedSubtitles, convertInputText, setSubtitlesLoading, model);
+            setMessages(["", "Hii How Can I help you"]);
+            fetchVideoSubtitiles(currentSearch);
         }
     }, [currentSearch])
+
+    useEffect(() => {
+        if (videoSubTitles) {
+            if (model == 'chrome-built-in') {
+                initiateChromePromptSession(videoSubTitles);
+                initiateSummarizer(videoSubTitles);
+            }
+        }
+        return () => {
+            promptSessionArray.forEach(session => {
+                session.destroy();
+            });
+        }
+    }, [model, videoSubTitles])
+
     return (
         <div className='flex text-white px-5 h-full'>
             <Tabs defaultValue="Chat" className="w-full flex flex-col">
@@ -89,11 +185,13 @@ export default function ChatScreen({ currentSearch }) {
                 </TabsList>
                 <TabsContent value="Chat">
                     <Chat
-                        promptSession={promptSession}
+                        masterPromptSession={masterPromptSession}
+                        promptSessionArray={promptSessionArray}
                         messages={messages}
                         setMessages={setMessages}
-                        timestampedSubtitles={timestampedSubtitles}
+                        timestampedSubtitles={videoSubTitles.subtitiles}
                         subTitlesLoading={subTitlesLoading}
+                        chromePromptSessionLoading={chromePromptSessionLoading}
                         model={model}
                         setModel={setModel}
                     />

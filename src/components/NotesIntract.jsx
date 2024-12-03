@@ -98,8 +98,7 @@ export default function NotesIntract({ currentSearch, UserData }) {
                 notesMode ?
                   <img src={videoData?.data[snapShotInfo.id]?.imgUrl || ""} alt={videoData?.data[snapShotInfo.id]?.imgText || ""} />
                   :
-                  <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${currentTimestamp}`}></iframe>
-                /*{ <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${Math.floor(videoData.data[snapShotInfo.id]?.timestamp)}`}></iframe> }*/
+                  <iframe className='w-full aspect-[16/9]' src={`https://www.youtube.com/embed/${currentSearch}?start=${currentTimestamp}&autoplay=1`} allow="autoplay; encrypted-media" allowFullScreen></iframe>
               }
             </div>
           )

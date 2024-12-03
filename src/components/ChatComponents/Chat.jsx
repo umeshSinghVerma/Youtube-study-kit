@@ -4,7 +4,7 @@ import ChatSearchResult from './ChatSearchResult';
 import SubtitlesLoading from '../SubtitlesLoading';
 
 
-export default function Chat({ promptSession, subTitlesLoading,timestampedSubtitles, messages, setMessages, model, setModel }) {
+export default function Chat({ masterPromptSession, promptSessionArray, subTitlesLoading, chromePromptSessionLoading, timestampedSubtitles, messages, setMessages, model, setModel }) {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -17,13 +17,14 @@ export default function Chat({ promptSession, subTitlesLoading,timestampedSubtit
         <div className='h-full flex flex-col'>
             <div ref={messagesEndRef} className='flex-grow h-[0px] my-2 pr-2 overflow-y-auto'>
                 {
-                    !subTitlesLoading ? <ChatSearchResult messages={messages} /> : <SubtitlesLoading />
+                    !(subTitlesLoading || (chromePromptSessionLoading && model == "chrome-built-in")) ? <ChatSearchResult messages={messages} /> : <SubtitlesLoading />
                 }
             </div>
             <ChatSearch
                 messages={messages}
                 setMessages={setMessages}
-                promptSession={promptSession}
+                masterPromptSession={masterPromptSession}
+                promptSessionArray={promptSessionArray}
                 timestampedSubtitles={timestampedSubtitles}
                 subTitlesLoading={subTitlesLoading}
                 model={model}
