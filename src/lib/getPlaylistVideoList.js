@@ -1,6 +1,6 @@
 export async function getPlaylistVideoList(playListId) {
     const bodyContent = JSON.stringify({
-        "playListId": "PLBlnK6fEyqRiVhbXDGLXDk_OQAeuVcp2O"
+        "playListId": playListId
     });
 
     try {

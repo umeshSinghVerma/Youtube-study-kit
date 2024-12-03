@@ -96,7 +96,7 @@ function MYDocument({ videoData }) {
               style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
               src="/projectLogo.png"
             />
-            <Link target="_blank" href="https://Youtube Study Kit.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
+            <Link target="_blank" href="https://youtube-study-kit.vercel.app/" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
           </View>
         </Page>
       </Document>
@@ -140,7 +140,7 @@ function CompleteListDocument({ completeData }) {
                   style={{ height: "20px", bottom: "3px", right: "0px", position: "absolute" }}
                   src="/projectLogo.png"
                 />
-                <Link target="_blank" href="https://Youtube Study Kit.com" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
+                <Link target="_blank" href="https://youtube-study-kit.vercel.app/" style={{ height: "20px", bottom: "0", right: "30px", position: "absolute" }}>Created Using Youtube Study Kit</Link>
               </View>
             </Page>
           )
@@ -203,23 +203,6 @@ const CompleteListHeader = ({ activeTab, setActiveTab, completeData }) => {
     </div>
   )
 }
-// const fetchVideosList = async (playlistId) => {
-//   console.log('vidlist');
-//   const API_KEY = 'AIzaSyCMm7TQGjXtXj7l-NVaB2Vf3HQLTLL0Z7s';
-//   const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`;
-
-//   try {
-//     const response = await axios.get(url);
-//     console.log("response", response);
-//     const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId);
-//     const playlistTitle = response.data.items[0].snippet.title;
-//     return { videoIds, playlistTitle }
-//   } catch (e) {
-//     console.log("Error fetching videos ", e);
-//     return null;
-//   }
-
-// }
 function App() {
   const [activeTab, setActiveTab] = useState("pdf");
   const [completeData, setCompleteData] = useState({

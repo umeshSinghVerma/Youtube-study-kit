@@ -30,14 +30,14 @@ const Sidebar = ({activeTab, setActiveTab, isList }) => {
       >
         <a href='https://Youtube Study Kit.com' className='flex items-center gap-2 border-b pb-2 border-[#80808056]'>
           <img src="/projectLogo.png" alt="" width={40} />
-          <p style={{fontFamily:"Oswald"}} className='text-white text-xl'>Youtube Study Kit</p>
+          <p style={{fontFamily:"Oswald"}} className='text-white text-lg'>Youtube Study Kit</p>
         </a>
         <div className='text-white my-4 flex flex-col gap-y-4 font-semibold'>
           <button className={activeTab=="pdf" && 'bg-[#80808059] p-3 rounded-md'} onClick={() => setActiveTab("pdf")}>
-            Normal View
+            Video Notes
           </button>
           {isList && <button  className={activeTab=="list" && 'bg-[#80808059] p-3 rounded-md'} onClick={() => setActiveTab("list")}>
-            List View
+            Playlist Notes
           </button>}
         </div>
       </div>
