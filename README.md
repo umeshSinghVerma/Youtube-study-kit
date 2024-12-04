@@ -1,60 +1,85 @@
-# YouTube Study Kit Chrome Extension
+# 🎓 YouTube Study Kit  
 
-![Demo](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20video%20(2).gif?raw=true)
+## 🌟 Inspiration  
+In today’s digital age, YouTube has become an essential tool for students, especially during exam preparation. However, managing notes and finding relevant information from lengthy videos can be a tedious process. We wanted to create a tool that simplifies this experience, making studying smarter, faster, and accessible to everyone, regardless of language barriers.  
 
-![Demo](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20Demonstration.gif?raw=true)
+## 🚀 What it does  
+YouTube Study Kit is a Chrome extension designed to revolutionize the way students engage with YouTube educational content. It offers:  
+- ✍️ **Timestamped Notes**: Take snapshots of video moments with timestamps while watching. These are compiled into a PDF where each snapshot is clickable, taking you back to the exact video moment.  
+- 📂 **Playlist Notes**: Combine notes from entire playlists into one organized PDF, reducing clutter.  
+- 🤖 **AI-Powered Assistance**: Summarize videos, clarify doubts, and get detailed explanations with AI responses that include timestamps.  
+- 🌍 **Multilingual Support**: Ask questions in any language and receive responses in your preferred language, breaking down language barriers in learning.  
+- 🔌 **Offline Mode**: The Chrome-built-in AI works offline, ensuring you can access its features without an internet connection.  
 
+## 🛠️ How to Use  
 
-## Purpose
+### 🎥 GIF Demonstration: Taking Notes and Downloading PDFs  
+![GIF of note-taking process](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20Demonstration.gif?raw=true)  
 
-The YouTube Study Kit Chrome Extension is designed to assist users in studying from YouTube videos by enabling timestamped snapshots with annotations, which are then compiled into a downloadable PDF. This extension aims to make video-based studying more efficient and organized, while also supporting future AI-powered summarization features for enhanced learning.
+1. 🖱️ Click the button to take screenshots of the video.  
+2. 📝 Jot down notes during or after learning.  
+3. 📄 Download notes as a PDF for a single video or the entire playlist.  
 
-## Features
+### 🎥 GIF Demonstration: Using the AI Chat Feature  
+![GIF of AI chat process](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Fast%20video%20(2).gif?raw=true)  
 
-### 1\. YouTube Player Integration
+1. 🤔 Ask any question about the video in the AI chat.  
+2. ⏩ Click on the timestamps provided by the AI agent to jump directly to the relevant moment in the video.  
 
-- The extension injects a content script into YouTube pages, adding two custom buttons directly to the YouTube player toolbar at the bottom.
-- These buttons allow users to take snapshots of the video at specific timestamps and annotate them as needed.
+## 📝 Try It Out  
+Want to see how it works? Check out these sample PDFs:  
 
-### 2\. Snapshot Functionality
+- [📄 Sample Video Notes PDF](https://drive.google.com/file/d/1z1S5Ckruni16N1Logj7yTIyZKU7uKbMM/view?usp=sharing)  
+- [📄 Sample Playlist Notes PDF](https://drive.google.com/file/d/14wrGZylxL5JR9_5Yveb1KiK9sqdnFk64/view?usp=sharing)  
 
-#### First Button (Basic Snapshot)
+## 🔄 How it Works  
 
-- **Capture**: Takes a screenshot of the current video frame with the exact timestamp.
-- **Canvas Processing**: The frame is painted onto an HTML canvas element, and a data URI (specifically a Blob URI) of the image is generated from this canvas.
-- **Annotation Toast**: A toast notification appears on the side of the video player, allowing the user to add text annotations relevant to the snapshot.
+### 📊 Process Flow Diagram  
+![Flow Diagram](https://github.com/umeshSinghVerma/Youtube-study-kit/blob/master/Assets/Untitled-2024-12-03-1346.png?raw=true)  
 
-#### Second Button (Snapshot with Drawing Tool)
+1. 🖊️ The user enters a query or takes an action (e.g., asking a question or taking a screenshot).  
+2. 🗣️ The input is processed through a **language detector** to identify the query's language.  
+3. 🔍 The system trains multiple **prompts** based on the context and generates identifier keywords.  
+4. 💡 A **master prompt session** determines which session should handle the query.  
+5. 🔄 The appropriate session processes the query and sends it to a **language translator** for the user’s preferred language.  
+6. ✅ The output is displayed, and timestamps are synced for seamless learning.  
 
-- **Capture with Drawing Overlay**: Takes a similar snapshot but opens an overlay with a drawing toolbar.
-- **Annotation Tool**: The toolbar allows users to draw or write directly on the snapshot (e.g., highlight, underline). These drawings are saved directly onto the image, merging with the original snapshot to modify the image’s data URI.
+## 🔌 Used Chrome Built-in APIs  
+To power its features, the YouTube Study Kit uses several Chrome Built-in APIs:  
 
-#### Storage
+1. 🌐 **Language Detection API**: Automatically detects the language of the user’s query to provide accurate processing.  
+2. 🌍 **Translation API**: Converts responses into the user’s preferred language for better understanding.  
+3. 🧠 **Prompt API**: Handles multiple trained prompts to contextualize and address queries effectively.  
+4. ✍️ **Summarization API**: Provides concise summaries of videos or specific timestamps for quicker insights.  
 
-- All snapshots, annotations, and timestamps are saved as data blob URIs in `chrome.storage.local`, making them accessible across tabs within the extension’s scope.
+## 🛠️ How We Built It  
+- 🎨 **Frontend**: Chrome extension UI developed with React, Tailwindcss, and JavaScript for user interactions.  
+- 🖥️ **Backend**: Node.js for handling requests and processing data from YouTube and the AI model.  
+- 🧠 **AI Integration**: Chrome Built in model for generating summaries, answering questions, and providing explanations.  
+- 📄 **PDF Generation**: Leveraged libraries like React pdf to create dynamic and interactive PDF files.  
+- 🌐 **Multilingual Support**: Integrated Chrome inbuilt translation APIs for language adaptability.  
 
-### 3\. Popup Interface for Accessing Stored Data
+## ⚡ Challenges We Ran Into  
+- 🕒 Ensuring seamless timestamp-linking in the PDF and syncing it with YouTube video playback.  
+- 🌍 Optimizing the AI for regional language support while maintaining accuracy and usability.  
+- 📂 Handling large data loads from extended playlists and multiple notes without affecting performance.  
+- 🛠️ Building an intuitive and user-friendly UI to cater to diverse student needs.  
 
-- When users open `popup.html` in the extension, they can access the saved snapshot data from `chrome.storage.local`.
-- **YouTube Video ID**: The extension accesses the active YouTube tab's URL to retrieve the video ID, which is used to create timestamped links back to the video.
-- This setup provides a consolidated view of all snapshots and annotations taken for the specific YouTube video, with metadata including timestamps, snapshot images, and text annotations.
+## 🎉 Accomplishments That We’re Proud Of  
+- 🌐 Successfully implementing multilingual AI support to make education accessible to learners worldwide.  
+- 📝 Providing an efficient way to consolidate and access study notes directly from YouTube videos.  
+- 📄 Creating a streamlined, interactive PDF experience for easy revision.  
+- 🔌 Implementing offline AI functionality for uninterrupted learning.  
 
-### 4\. PDF Generation
+## 📚 What We Learned  
+- 🤝 The importance of balancing feature complexity with user-friendliness.  
+- 🧠 The potential of AI in enhancing traditional educational workflows.  
+- 🌍 Addressing global accessibility by prioritizing multilingual and offline compatibility.  
+- 🚀 Leveraging user feedback to refine and improve functionalities.  
 
-- The extension uses `react-pdf` to dynamically generate a PDF document containing all snapshots in sequential order.
-- Each snapshot in the PDF includes:
-  - **Image with Annotations**: The annotated snapshot (text or drawing-based).
-  - **Timestamped Video Link**: A link that, when clicked, opens the YouTube video at the specific timestamp in the same browser tab.
-  - **Text Annotations**: Any annotation text provided by the user, displayed below each image.
-- **Downloadable PDF**: Users can download this PDF, creating a permanent, organized study resource for each video.
+## 🚀 What’s Next for YouTube Study Kit  
+- 📱 **Mobile Support**: Extend the functionality to mobile platforms for on-the-go learners.  
+- 🗣️ **Enhanced AI Features**: Include voice queries and responses for better accessibility.  
+- 🤝 **Community Features**: Enable sharing of notes and playlists among peers for collaborative learning.  
 
-### 5\. AI-Powered Summarization and Chat with Video
-
-- The extension is designed to support integration with Chrome built in Ai APIs for enhanced study tools:
-  - **Subtitle Extraction**: Retrieves the full subtitle data with timestamps from YouTube videos.
-  - **Summarization**: Generates a concise summary of the video, helping users quickly review the main points.
-  - **Contextual Q&A**: Allows users to ask follow-up questions based on the video content, with Chrome Built-in generating responses that consider the subtitle context.
-
----
-
-With these features, the YouTube Study Helper Chrome Extension is a comprehensive tool for interactive and efficient video-based learning, combining timestamped snapshots, annotations, and downloadable study resources with future potential for AI-driven summarization and flashcards.
+We believe the YouTube Study Kit is a game-changer for learners worldwide 🌎 and are excited to continue improving it for a brighter educational future!  
