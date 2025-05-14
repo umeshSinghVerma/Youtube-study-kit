@@ -2,17 +2,19 @@
 let detector = null;
 
 try {
-    const canDetect = await window.translation.canDetect();
-    if (canDetect !== 'no') {
-        if (canDetect === 'readily') {
-            detector = await window.translation.createDetector();
-
+    const canDetect = await window.LanguageDetector.availability();
+    if (canDetect !== 'unavailable') {
+        if (canDetect === 'available') {
+            detector = await window.LanguageDetector.create();
         } else {
-            detector = await window.translation.createDetector();
-            detector.addEventListener('downloadprogress', (e) => {
-                console.log(e.loaded, e.total);
-            });
-            await detector.ready;
+            detector = await window.LanguageDetector.create({
+               monitor(m) {
+                 m.addEventListener('downloadprogress', (e) => {
+                   console.log(`Downloaded ${e.loaded * 100}%`);
+                 });
+                },
+             });
+             await detector.ready;
         }
     } else {
         console.log("The language detector can't be used at all.");

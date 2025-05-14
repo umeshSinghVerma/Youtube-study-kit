@@ -61,8 +61,8 @@ export const SearchProvider = ({ children }) => {
         setGeminiApiKey(savedKey);
     }
     async function canUseLanguageModel() {
-        const check = await window?.ai?.languageModel?.capabilities();
-        if (check && check.available) {
+        const check = await window?.LanguageModel?.availability();
+        if (check && check !== "unavailable") {
             setCanUseChromeAi(true);
             setModel('chrome-built-in');
         } else {

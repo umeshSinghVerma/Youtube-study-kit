@@ -4,10 +4,10 @@ export async function initializeSummarizer(subtitles, setSummary, setLoading, mo
     if (model == 'chrome-built-in') {
         let summarizer = null;
         try {
-            const canSummarize = await window?.ai?.summarizer?.capabilities();
-            if (canSummarize && canSummarize.available !== 'no') {
-                if (canSummarize.available === 'readily') {
-                    summarizer = await window?.ai?.summarizer?.create();
+            const canSummarize = await window?.Summarizer?.availability();
+            if (canSummarize && canSummarize !== 'unavailable') {
+                if (canSummarize === 'available') {
+                    summarizer = await window.Summarizer.create();
                     console.log("summarizer activated")
                     let result = '';
                     for (let i = 0; i < subtitles.length; i += 4000) {
@@ -23,9 +23,9 @@ export async function initializeSummarizer(subtitles, setSummary, setLoading, mo
                         setSummary(result);
                     }
                 } else {
-                    summarizer = await window?.ai?.summarizer.create();
+                    summarizer = await window.Summarizer.create();
                     summarizer.addEventListener('downloadprogress', (e) => {
-                        console.log(e.loaded, e.total);
+                        console.log(`Downloaded ${e.loaded * 100}%`);
                     });
                     await summarizer.ready;
                 }
