@@ -24,7 +24,7 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
             const outputText = await convertOutputText(newChunk);
             setMessages((prevMessages) => {
                 const updatedMessages = [...prevMessages];
-                updatedMessages[updatedMessages.length - 1] = outputText;
+                updatedMessages[updatedMessages.length - 1] += outputText;
                 return updatedMessages;
             });
         } catch (error) {
