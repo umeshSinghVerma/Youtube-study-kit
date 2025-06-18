@@ -7,6 +7,7 @@ import { LanguageContext } from '../context/LanguageContext'
 import { detectLanguage } from '../lib/detectLanguage'
 import { initializeSummarizer } from '../lib/initializeSummarizer'
 import { SearchContext } from '../context/SearchContext'
+import { generateKeywordMap } from '../lib/generateKeywordMap'
 import TrainingChromePrompt from '../lib/TrainingChromePrompt'
 import PromptSessionIdentifierKeywordsPrompt from '../lib/PromptSessionIdentifierKeywordPrompt'
 import MasterSessionPrompt from '../lib/MasterSessionPrompt'
@@ -20,7 +21,8 @@ export default function ChatScreen({ currentSearch }) {
     const [summary, setSummary] = useState(null);
     const [chromePromptSessionLoading, setChromePromptSessionLoading] = useState(false);
     const [summaryLoading, setSummaryLoading] = useState(false);
-    const [promptSessionArray, setPromptSessionArray] = useState([]);
+    const [promptSessionArray, setPromptSessionArray] = useState({});
+    const [subtitleChunkArray, setSubtitleChunkArray] = useState([]);
     const [masterPromptSession, setMasterPromptSession] = useState(null);
 
     async function fetchVideoSubtitiles(videoId) {
@@ -40,6 +42,7 @@ export default function ChatScreen({ currentSearch }) {
 
     async function initiateChromePromptSession(videoSubTitles) {
         try {
+            console.log("setChromePromptSessionLoading true", performance.now());
             setChromePromptSessionLoading(true);
             const rawCompleteSubtitles = videoSubTitles.subtitiles.map((subtitleObject) => ({
                 text: subtitleObject.text,
@@ -56,48 +59,12 @@ export default function ChatScreen({ currentSearch }) {
                 return { text: translatedText, offset: subtitleObject.offset };
             }));
 
-            let completeSubtitles = JSON.stringify(completeSubtitlesArray);
-            console.log("these are completeSubtitles", completeSubtitles);
-
-
-            const subtitleChunkArray = [];
-            for (let i = 0; i < completeSubtitles.length; i += 9500) {
-                subtitleChunkArray.push(completeSubtitles.slice(i, i + 9500));
-            }
-
-            console.log(subtitleChunkArray);
-
-            const promptSessionArray = await Promise.all(subtitleChunkArray.map(async (subtitleChunk) => {
-                const updatedSubtitleChunkPrompt = TrainingChromePrompt(subtitleChunk, currentSearch, outputLanguage);
-                const session = await window?.LanguageModel?.create({
-                    initialPrompts: [{ role: "system", content: updatedSubtitleChunkPrompt}]
-                });
-                return session;
-            }));
-
-            console.log(promptSessionArray, "promptSessionArray");
-
-            setPromptSessionArray(promptSessionArray);
-
-            const PromptSessionIdentifierKeywordsArray = await Promise.all(promptSessionArray.map(async (session) => {
-                console.log(session);
-                let keywords = "";
-                try {
-                    const prompt = "Return the comma-separated keywords you generated earlier. Do not include any additional explanations or text, just the keywords themselves.";
-                    keywords = await session.prompt(prompt);
-                    console.log(keywords);
-                } catch (error) {
-                    console.log(error, "error in generating keywords");
-                }
-                return keywords;
-            }));
-
-            console.log(PromptSessionIdentifierKeywordsArray, "PromptSessionIdentifierKeywordsArray");
-
-            const keywordMap = {};
-            for (let i = 0; i < PromptSessionIdentifierKeywordsArray.length; i++) {
-                keywordMap[i] = PromptSessionIdentifierKeywordsArray[i];
-            }
+            console.time("getkeywords-sessions");
+            const { keywordMap, subtitleChunkArray } = await generateKeywordMap(completeSubtitlesArray, currentSearch);
+            setPromptSessionArray({});
+            setSubtitleChunkArray(subtitleChunkArray);
+            console.timeEnd("getkeywords-sessions");
+            console.log("keywordMap", keywordMap);
 
             const masterPrompt = `You are a router for selecting the appropriate AI model based on user queries.  You have access to a map of keywords associated with each model.
 
@@ -136,10 +103,13 @@ export default function ChatScreen({ currentSearch }) {
 
             console.log("master Prompt", masterPrompt);
             try {
+                console.time("mastersession");
                 const MasterSession = await window?.LanguageModel?.create({
                     initialPrompts: [{ role: "system", content: masterPrompt }]
                 });
+                console.timeEnd("mastersession");
                 setMasterPromptSession(MasterSession);
+                console.log("Master Session:", MasterSession);
             } catch (error) {
                 console.log(error, "error in generating master prompt")
             }
@@ -147,6 +117,7 @@ export default function ChatScreen({ currentSearch }) {
         } catch (error) {
             console.error("Error initiating prompt sessions:", error); // More specific error message
         } finally {
+            console.log("setChromePromptSessionLoading false", performance.now());
             setChromePromptSessionLoading(false);
         }
     }
@@ -162,14 +133,13 @@ export default function ChatScreen({ currentSearch }) {
     }, [currentSearch])
 
     useEffect(() => {
-        if (videoSubTitles) {
+        if (videoSubTitles && Array.isArray(videoSubTitles.subtitiles) && videoSubTitles.subtitiles.length > 0) {
             if (model == 'chrome-built-in') {
                 initiateChromePromptSession(videoSubTitles);
-                initiateSummarizer(videoSubTitles);
             }
         }
         return () => {
-            promptSessionArray.forEach(session => {
+            Object.values(promptSessionArray).forEach(session => {
                 session.destroy();
             });
         }
@@ -187,6 +157,8 @@ export default function ChatScreen({ currentSearch }) {
                     <Chat
                         masterPromptSession={masterPromptSession}
                         promptSessionArray={promptSessionArray}
+                        setPromptSessionArray={setPromptSessionArray}
+                        subtitleChunkArray={subtitleChunkArray}
                         messages={messages}
                         setMessages={setMessages}
                         timestampedSubtitles={videoSubTitles.subtitiles}
