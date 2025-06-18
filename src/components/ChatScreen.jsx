@@ -170,7 +170,12 @@ export default function ChatScreen({ currentSearch }) {
                 </TabsContent>
                 <TabsContent value="Flashcards">Flashcards will be generated here</TabsContent>
                 <TabsContent value="Summary">
-                    <Summary summary={summary} loading={summaryLoading} model={model} />
+                    <Summary
+                        summary={summary}
+                        loading={summaryLoading}
+                        model={model}
+                        onGenerateSummary={() => initiateSummarizer(videoSubTitles)}
+                    />
                 </TabsContent>
             </Tabs>
         </div>

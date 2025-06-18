@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { LanguageContext } from '../context/LanguageContext';
 import { Loader } from 'lucide-react';
 
-export default function Summary({ summary, loading, model }) {
+export default function Summary({ summary, loading, model, onGenerateSummary }) {
     const { outputLanguage, convertOutputText } = useContext(LanguageContext);
     const [translatedSummaryText, setTranslatedSummaryText] = useState("");
 
@@ -30,7 +30,19 @@ export default function Summary({ summary, loading, model }) {
     return (
         <div className='text-white border rounded-xl h-[99%] w-full border-[#2f2f2f] p-3 flex flex-col items-center gap-2 '>
             {
-                loading ?
+                (model === 'chrome-built-in' && !summary && !loading) ? (
+                    <div className="flex flex-col items-center gap-2">
+                        <div>
+                            Generating a summary may affect chatting performance. Continue?
+                        </div>
+                        <button
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                          onClick={onGenerateSummary}
+                        >
+                          Generate Summary
+                        </button>
+                    </div>
+                ) : loading ?
                     <div className='w-full h-full items-center justify-center flex'>
                         <div className='animate-spin'>
                             <Loader />
