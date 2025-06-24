@@ -40,29 +40,22 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
             setSearchQuery("");
             if (model == 'chrome-built-in') {
                 try {
-                    console.log("masterPromptSession", masterPromptSession);
-                    console.time("run-masterPrompt");
                     const sessionIdString = await masterPromptSession.prompt(searchQuery);
                     console.log("sessionIdString", sessionIdString);
 
                     // Extracting the last character and converting it to a number
                     let promptSessionId = parseInt(sessionIdString.slice(-1), 10);
-
                     console.log("promptSessionId", promptSessionId);
 
                     // Validate and adjust `promptSessionId`
                     if (Number.isNaN(promptSessionId) || promptSessionId >= subtitleChunkArray.length) {
                         promptSessionId = 0;
                     }
-                    console.timeEnd("run-masterPrompt");
-                    console.time("get-generate-session");
                     let session = promptSessionArray[promptSessionId];
                     if (!session) {
                         session = await generatePromptSession(subtitleChunkArray[promptSessionId]);
                         setPromptSessionArray(prev => ({ ...prev, [promptSessionId]: session }));
                     }
-                    console.timeEnd("get-generate-session");
-                    console.time("getStreamingPromptResult");
 
                     // Call `getStreamingPromptResult` with a valid `promptSessionId`
                     const UpdatedQuery = searchQuery + " give me the response in the described format, give integer time after each paragraph in curly braces for example {45} etc. Never include time range in curly braces. Give answer in headings, subheadings and bullet points"
@@ -71,8 +64,6 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
                         UpdatedQuery,
                         handleStreamResponse
                     );
-                    console.timeEnd("getStreamingPromptResult");
-
 
                 } catch (error) {
                     console.log("Error in handleSearch:", error);

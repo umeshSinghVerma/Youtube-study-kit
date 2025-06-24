@@ -20,7 +20,6 @@ export async function generateKeywordMap(completeSubtitlesArray, videoId) {
     if (!keywordMap) {
         console.log("Generate keywords");
         const prompt = "Return the comma-separated keywords you generated earlier. Do not include any additional explanations or text, just the keywords themselves.";
-        console.time("Generate keywords");
         const PromptSessionIdentifierKeywordsArray = await Promise.all(
             subtitleChunkArray.map(async (subtitleChunk) => {
                 let keywords = "";
@@ -31,13 +30,19 @@ export async function generateKeywordMap(completeSubtitlesArray, videoId) {
                     });
                     keywords = await session.prompt(prompt);
                     session.destroy();
+                    return keywords && keywords.trim() ? keywords.trim() : null;
                 } catch (error) {
                     console.log(error, "error in generating keywords");
+                    return null;
                 }
-                return keywords;
             })
         );
-        console.timeEnd("Generate keywords");
+
+        const hasNullOrEmpty = PromptSessionIdentifierKeywordsArray.some(item => !item || !item.trim());
+        if (hasNullOrEmpty) {
+            console.log("Some generated keywords are empty, not storing keywordMap.");
+            return { keywordMap: null, subtitleChunkArray };
+        }
 
         keywordMap = {};
         for (let i = 0; i < PromptSessionIdentifierKeywordsArray.length; i++) {

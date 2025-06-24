@@ -42,7 +42,6 @@ export default function ChatScreen({ currentSearch }) {
 
     async function initiateChromePromptSession(videoSubTitles) {
         try {
-            console.log("setChromePromptSessionLoading true", performance.now());
             setChromePromptSessionLoading(true);
             const rawCompleteSubtitles = videoSubTitles.subtitiles.map((subtitleObject) => ({
                 text: subtitleObject.text,
@@ -59,11 +58,9 @@ export default function ChatScreen({ currentSearch }) {
                 return { text: translatedText, offset: subtitleObject.offset };
             }));
 
-            console.time("getkeywords-sessions");
             const { keywordMap, subtitleChunkArray } = await generateKeywordMap(completeSubtitlesArray, currentSearch);
             setPromptSessionArray({});
             setSubtitleChunkArray(subtitleChunkArray);
-            console.timeEnd("getkeywords-sessions");
             console.log("keywordMap", keywordMap);
 
             const masterPrompt = `You are a router for selecting the appropriate AI model based on user queries.  You have access to a map of keywords associated with each model.
@@ -103,11 +100,9 @@ export default function ChatScreen({ currentSearch }) {
 
             console.log("master Prompt", masterPrompt);
             try {
-                console.time("mastersession");
                 const MasterSession = await window?.LanguageModel?.create({
                     initialPrompts: [{ role: "system", content: masterPrompt }]
                 });
-                console.timeEnd("mastersession");
                 setMasterPromptSession(MasterSession);
                 console.log("Master Session:", MasterSession);
             } catch (error) {
@@ -117,7 +112,6 @@ export default function ChatScreen({ currentSearch }) {
         } catch (error) {
             console.error("Error initiating prompt sessions:", error); // More specific error message
         } finally {
-            console.log("setChromePromptSessionLoading false", performance.now());
             setChromePromptSessionLoading(false);
         }
     }
