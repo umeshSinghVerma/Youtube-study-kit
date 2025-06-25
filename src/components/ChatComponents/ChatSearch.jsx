@@ -11,9 +11,10 @@ import ArrowUpIcon from '../ArrowUpIcon';
 import { getPromptResult, getStreamingPromptResult } from '../../lib/getPromptResult';
 import { LanguageContext } from '../../context/LanguageContext';
 import { getGeminiResponse } from '../../lib/getGeminiResponse';
+import { generatePromptSession } from '../../lib/generateKeywordMap';
 import { SearchContext } from '../../context/SearchContext';
 
-export default function ChatSearch({ messages, setMessages, timestampedSubtitles, masterPromptSession, promptSessionArray, subTitlesLoading, model, setModel }) {
+export default function ChatSearch({ messages, setMessages, timestampedSubtitles, masterPromptSession, promptSessionArray, setPromptSessionArray, subtitleChunkArray, subTitlesLoading, model, setModel }) {
     const [disabled, setDisabled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { convertOutputText, outputLanguage } = useContext(LanguageContext);
@@ -44,22 +45,25 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
 
                     // Extracting the last character and converting it to a number
                     let promptSessionId = parseInt(sessionIdString.slice(-1), 10);
-
                     console.log("promptSessionId", promptSessionId);
 
                     // Validate and adjust `promptSessionId`
-                    if (Number.isNaN(promptSessionId) || promptSessionId >= promptSessionArray.length) {
+                    if (Number.isNaN(promptSessionId) || promptSessionId >= subtitleChunkArray.length) {
                         promptSessionId = 0;
+                    }
+                    let session = promptSessionArray[promptSessionId];
+                    if (!session) {
+                        session = await generatePromptSession(subtitleChunkArray[promptSessionId]);
+                        setPromptSessionArray(prev => ({ ...prev, [promptSessionId]: session }));
                     }
 
                     // Call `getStreamingPromptResult` with a valid `promptSessionId`
                     const UpdatedQuery = searchQuery + " give me the response in the described format, give integer time after each paragraph in curly braces for example {45} etc. Never include time range in curly braces. Give answer in headings, subheadings and bullet points"
                     await getStreamingPromptResult(
-                        promptSessionArray[promptSessionId],
+                        session,
                         UpdatedQuery,
                         handleStreamResponse
                     );
-
 
                 } catch (error) {
                     console.log("Error in handleSearch:", error);

@@ -4,7 +4,7 @@ import ChatSearchResult from './ChatSearchResult';
 import SubtitlesLoading from '../SubtitlesLoading';
 
 
-export default function Chat({ masterPromptSession, promptSessionArray, subTitlesLoading, chromePromptSessionLoading, timestampedSubtitles, messages, setMessages, model, setModel }) {
+export default function Chat({ masterPromptSession, promptSessionArray, setPromptSessionArray, subtitleChunkArray, subTitlesLoading, chromePromptSessionLoading, timestampedSubtitles, messages, setMessages, model, setModel }) {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -25,6 +25,8 @@ export default function Chat({ masterPromptSession, promptSessionArray, subTitle
                 setMessages={setMessages}
                 masterPromptSession={masterPromptSession}
                 promptSessionArray={promptSessionArray}
+                setPromptSessionArray={setPromptSessionArray}
+                subtitleChunkArray={subtitleChunkArray}
                 timestampedSubtitles={timestampedSubtitles}
                 subTitlesLoading={subTitlesLoading}
                 model={model}
