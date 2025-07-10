@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^7.1.0",
+    "@danielxceron/youtube-transcript": "^1.2.3",
     "@google/generative-ai": "^0.21.0",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -31,8 +32,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^2.1.4",
-    "Youtube-Study-Kit": "file:",
-    "youtube-transcript": "^1.2.1"
+    "Youtube-Study-Kit": "file:"
   },
   "scripts": {
     "start": "craco start",
