@@ -15,7 +15,7 @@ export default function TrainingChromePrompt(subtitleChunk, videoId, language) {
   * **Structured Responses:** Use headings (##), subheadings (###, ####), and lists (* or 1.) for every answer do not write just paragraph break them down into bullet points headings subheadings.
   * **Timestamp References (REQUIRED for EVERY paragraph):**
   * **Format:** {time}
-  * **Timestamp Value:** Use the "offset" value from the JSON.
+  * **Timestamp Value:** Use the "startOffset" and "endOffset" value from the JSON.
   * **Accuracy:** The timestamp should point to the video section most relevant to the paragraph's content.
   * **Earliest Timestamp:** If multiple subtitles relate to a paragraph, use the earliest relevant timestamp.
   * **Placement:**  Place the timestamp reference at the end of *every* paragraph.
