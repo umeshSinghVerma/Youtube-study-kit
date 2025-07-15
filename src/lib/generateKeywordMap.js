@@ -142,9 +142,9 @@ function splitSubtitlesIntoSentencesWithOffsets(
     const end = start + trimmed.length;
 
     const startOffset = indexToOffsetMap[start];
-    const endOffset =
-      indexToOffsetMap[end - 1] ??
-      indexToOffsetMap[indexToOffsetMap.length - 1];
+    // const endOffset =
+    //   indexToOffsetMap[end - 1] ??
+    //   indexToOffsetMap[indexToOffsetMap.length - 1];
 
     const wordCount = trimmed.split(/\s+/).length;
     if (wordCount > maxWordsPerChunk) {
@@ -155,7 +155,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
     sentenceObjects.push({
       text: trimmed,
       startOffset,
-      endOffset,
+      // endOffset,
     });
 
     cursor = end;
@@ -168,7 +168,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
     return subtitlesArray.map((entry) => ({
       text: decodeHTMLEntities(entry.text).trim(),
       startOffset: entry.offset,
-      endOffset: entry.offset,
+      // endOffset: entry.offset,
     }));
   }
 
