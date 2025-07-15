@@ -4,7 +4,7 @@ export default function TrainingChromePrompt(subtitleChunk, videoId, language) {
 
   This prompt has two main goals:
 
-  1. **Generate Keywords:** Create a comma-separated list of at least 20 keywords. These keywords are **essential** for evaluating your understanding of the text. Be specific, capture the nuances of the content, and ensure they are relevant to the main topics discussed.  These keywords will be used to assess your ability to identify the core themes and concepts.
+  1. **Generate Keywords:** Create a comma-separated list of at least 20, at most 40 unique keywords. Avoid duplicates or repeated forms of the same concept. These keywords are **essential** for evaluating your understanding of the text. Be specific, capture the nuances of the content, and ensure they are relevant to the main topics discussed.  These keywords will be used to assess your ability to identify the core themes and concepts.
 
   2. **Prepare for Questions:** Answer questions based on the subtitles, adhering to the formatting guidelines.
 
@@ -15,7 +15,7 @@ export default function TrainingChromePrompt(subtitleChunk, videoId, language) {
   * **Structured Responses:** Use headings (##), subheadings (###, ####), and lists (* or 1.) for every answer do not write just paragraph break them down into bullet points headings subheadings.
   * **Timestamp References (REQUIRED for EVERY paragraph):**
   * **Format:** {time}
-  * **Timestamp Value:** Use the "startOffset" and "endOffset" value from the JSON.
+  * **Timestamp Value:** Use the "startOffset" value from the JSON.
   * **Accuracy:** The timestamp should point to the video section most relevant to the paragraph's content.
   * **Earliest Timestamp:** If multiple subtitles relate to a paragraph, use the earliest relevant timestamp.
   * **Placement:**  Place the timestamp reference at the end of *every* paragraph.
@@ -84,6 +84,7 @@ export default function TrainingChromePrompt(subtitleChunk, videoId, language) {
     **The time strictly should not be any range for example 00:05-00:10 is not acceptable**
     **The time strictly should be an integer value enclosed in the curly braces**
     **Only give the time if you find the integer timestamp from the json provided below otherwise do not give the wrong formatted time**
+    **Do not include specific content in the example in the keywords and answer.
 
 
   
