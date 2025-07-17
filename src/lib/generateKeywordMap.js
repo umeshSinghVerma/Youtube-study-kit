@@ -179,7 +179,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
  * Groups an array of sentence objects into larger chunks, each bounded by maxWordsPerChunk.
  * Maintains relative ordering and keeps track of offset metadata.
  */
-function groupSentencesIntoChunks(sentenceObjects, maxWordsPerChunk = 1500) {
+function groupSentencesIntoChunks(sentenceObjects, maxWordsPerChunk = 3500) {
   const chunks = [];
   let currentChunk = [];
   let currentWordCount = 0;
@@ -198,7 +198,7 @@ function groupSentencesIntoChunks(sentenceObjects, maxWordsPerChunk = 1500) {
   }
 
   for (const sentence of sentenceObjects) {
-    const sentenceWordCount = sentence.text.split(/\s+/).length;
+    const sentenceWordCount = sentence.text.split(/\s+/).length + 12;
 
     if (currentWordCount + sentenceWordCount > maxWordsPerChunk) {
       pushChunk();
