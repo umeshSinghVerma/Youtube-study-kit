@@ -10,11 +10,6 @@ export async function generateKeywordMap(completeSubtitlesArray, videoId) {
     console.log("found keywords:", keywordMap);
   }
 
-  // const completeSubtitles = JSON.stringify(completeSubtitlesArray);
-  // const subtitleChunkArray = [];
-  // for (let i = 0; i < completeSubtitles.length; i += 9500) {
-  //     subtitleChunkArray.push(completeSubtitles.slice(i, i + 9500));
-  // }
   const sentenceArray = splitSubtitlesIntoSentencesWithOffsets(
     completeSubtitlesArray
   );
@@ -141,10 +136,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
     const start = fullText.indexOf(trimmed, cursor);
     const end = start + trimmed.length;
 
-    const startOffset = indexToOffsetMap[start];
-    // const endOffset =
-    //   indexToOffsetMap[end - 1] ??
-    //   indexToOffsetMap[indexToOffsetMap.length - 1];
+    const offset = indexToOffsetMap[start];
 
     const wordCount = trimmed.split(/\s+/).length;
     if (wordCount > maxWordsPerChunk) {
@@ -154,8 +146,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
 
     sentenceObjects.push({
       text: trimmed,
-      startOffset,
-      // endOffset,
+      offset,
     });
 
     cursor = end;
@@ -167,8 +158,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
     );
     return subtitlesArray.map((entry) => ({
       text: decodeHTMLEntities(entry.text).trim(),
-      startOffset: entry.offset,
-      // endOffset: entry.offset,
+      offset: entry.offset,
     }));
   }
 
@@ -189,8 +179,6 @@ function groupSentencesIntoChunks(sentenceObjects, maxWordsPerChunk = 3500) {
 
     chunks.push({
       subtitles: [...currentChunk], // preserve full sentence info
-      // startOffset: currentChunk[0].startOffset,
-      // endOffset: currentChunk[currentChunk.length - 1].endOffset,
     });
 
     currentChunk = [];
