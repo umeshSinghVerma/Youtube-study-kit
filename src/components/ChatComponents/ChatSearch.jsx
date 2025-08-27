@@ -98,7 +98,7 @@ export default function ChatSearch({ messages, setMessages, timestampedSubtitles
             />
             <div className='text-[#ffffffe0] flex justify-between'>
                 <div>
-                    <Select onValueChange={(val) => setModel(val)} defaultValue={model}>
+                    <Select onValueChange={(val) => setModel(val)} value={model}>
                         <SelectTrigger className="bg-transparent">
                             <SelectValue placeholder="gemini" />
                         </SelectTrigger>
