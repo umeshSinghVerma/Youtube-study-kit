@@ -23,21 +23,23 @@ export async function generateKeywordMap(completeSubtitlesArray, videoId) {
       "Return the comma-separated keywords you generated earlier. Do not include any additional explanations or text, just the keywords themselves.";
     const PromptSessionIdentifierKeywordsArray = await Promise.all(
       subtitleChunkArray.map(async (subtitleChunk) => {
-        let keywords = "";
+        let keywords = null;
         try {
           const updatedSubtitleChunkPrompt =
             TrainingChromePrompt(subtitleChunk);
-          const session = await window?.LanguageModel?.create({
-            initialPrompts: [
-              {
-                role: "system",
-                content: updatedSubtitleChunkPrompt,
-              },
-            ],
+          const res = await chrome.runtime.sendMessage({
+            type: "PROMPT_GEMINI",
+            initialPrompts: updatedSubtitleChunkPrompt,
+            prompt: prompt
           });
-          keywords = await session.prompt(prompt);
-          session.destroy();
-          return keywords && keywords.trim() ? keywords.trim() : null;
+
+          if (res?.ok && typeof res.keywords === "string") {
+            keywords = res.keywords.trim();
+          } else {
+            console.warn("PROMPT_GEMINI failed:", res?.error || "unknown error");
+          }
+
+          return keywords || null;
         } catch (error) {
           console.log(error, "error in generating keywords");
           return null;
