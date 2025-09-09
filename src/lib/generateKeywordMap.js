@@ -82,11 +82,11 @@ function decodeHTMLEntities(text) {
 
 /**
  * Splits subtitle lines into sentence-level segments with associated start and end offsets.
- * Falls back to original entries if a sentence is too long (i.e. > maxWordsPerChunk).
+ * Falls back to original entries if a sentence is too long (i.e. > maxWordsPerSentence).
  */
 function splitSubtitlesIntoSentencesWithOffsets(
   subtitlesArray,
-  maxWordsPerChunk = 1500
+  maxWordsPerSentence = 100
 ) {
   const decodedEntries = subtitlesArray.map((entry) => ({
     offset: entry.offset,
@@ -139,7 +139,7 @@ function splitSubtitlesIntoSentencesWithOffsets(
     const offset = indexToOffsetMap[start];
 
     const wordCount = trimmed.split(/\s+/).length;
-    if (wordCount > maxWordsPerChunk) {
+    if (wordCount > maxWordsPerSentence) {
       containsUltraLongSentence = true;
       break;
     }
