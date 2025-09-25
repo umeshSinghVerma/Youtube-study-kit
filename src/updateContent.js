@@ -59,6 +59,7 @@ async function saveImage(videoId, imgUrl, imgText, ytLink, timestamp, videoHeadi
             updatedData = {
                 ...previousData,
                 [videoId]: {
+                    ...previousData[videoId],
                     heading: videoHeading,
                     data: sortedData,
                     updatedAt
