@@ -63,39 +63,24 @@ export default function ChatScreen({ currentSearch }) {
             setSubtitleChunkArray(subtitleChunkArray);
             console.log("keywordMap", keywordMap);
 
-            const masterPrompt = `You are a router for selecting the appropriate AI model based on user queries.  You have access to a map of keywords associated with each model.
+            const masterPrompt = `
+            SYSTEM
+            You route user queries to one session ID using ONLY the KeywordMap JSON below. Be concise and deterministic.
 
-            **Keyword Map:**
-            
-            \`\`\`json
+            KEYWORDMAP (JSON)
             ${JSON.stringify(keywordMap)}
-            \`\`\`
-            
-            **Instructions:**
-            
-            1. **Analyze the user query:**  Identify the key topics and concepts in the user's query.
-            
-            2. **Match keywords:**  Compare the query's key concepts to the keywords associated with each model in the keyword map.
-            
-            3. **Select the best match:**  Choose the model whose keywords have the strongest overlap with the query's key concepts. If multiple models seem equally relevant, choose the one with the most specific keywords related to the query.
-            
-            4. **Return the selected model's ID:** Return only the ID of the selected model (e.g., "session0", "session1", etc.). You have to just select session, Do not include any explanations or additional text.  If no model matches the query, return "session0".
-            
-            
-            **Example:**
-            
-            \`\`\`
-            User Query: "What were the main challenges discussed in the section about project management?"
-            
-            Keyword Map:
-            {
-              "session0": "introduction, welcome, overview",
-              "session1": "project management, challenges, planning, execution, risks",
-              "session2": "conclusion, next steps, questions"
-            }
-            
-            Response: session1
-            \`\`\`
+
+            BEHAVIOR
+            - On each user message, select exactly one ID from the map's keys.
+            - Normalize: lowercase the user message and all keywords; trim spaces.
+            - Keywords: each map value may be a comma-separated string or an array; treat each entry as a full phrase.
+            - Match rule: a keyword matches if its full phrase appears in the user message as a whole-word/phrase substring.
+            - Score: count matches per session.
+            - Tie-breakers: (1) greater total characters across matched keywords; (2) lexicographically smallest session ID.
+            - Fallback: if no matches, return "session0" (if present), otherwise the lexicographically smallest ID.
+
+            OUTPUT
+            Return ONLY the chosen session ID (e.g., session1). No explanations, no quotes, no extra text.
             `;
 
             console.log("master Prompt", masterPrompt);
